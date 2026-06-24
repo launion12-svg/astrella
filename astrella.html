@@ -37,7 +37,7 @@
   .hbtns{display:flex;gap:6px;}
   .iconbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);
     background:var(--panel);color:var(--text);display:flex;align-items:center;justify-content:center;
-    font-size:17px;cursor:pointer;transition:.15s;}
+    font-size:17px;cursor:pointer;transition:.15s;appearance:none;-webkit-appearance:none;font-family:inherit;padding:0;}
   .iconbtn:active{transform:scale(.92);}
   .coins{display:flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--line);
     border-radius:11px;padding:0 11px;height:38px;font-weight:800;font-size:14px;color:var(--accent);}
@@ -133,9 +133,9 @@
   <div class="logo"><span class="mark">★</span>Astrella</div>
   <div class="hbtns">
     <div class="coins" id="coinPill" title="Monedas"><span class="ic">🪙</span><span id="coinVal">0</span></div>
-    <div class="iconbtn" id="btnHelp" title="Cómo jugar">?</div>
-    <div class="iconbtn" id="btnStats" title="Estadísticas">📊</div>
-    <div class="iconbtn" id="btnSettings" title="Ajustes">⚙</div>
+    <button class="iconbtn" id="btnHelp" title="Cómo jugar" aria-label="Cómo jugar">?</button>
+    <button class="iconbtn" id="btnStats" title="Estadísticas" aria-label="Estadísticas">📊</button>
+    <button class="iconbtn" id="btnSettings" title="Ajustes" aria-label="Ajustes">⚙</button>
   </div>
 </header>
 
@@ -263,8 +263,11 @@ const LS = {
   get(k,d){ try{const v=localStorage.getItem('astrella_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;} },
   set(k,v){ try{localStorage.setItem('astrella_'+k,JSON.stringify(v));}catch(e){} }
 };
-let settings = LS.get('settings',{theme:'dark',sound:true,haptic:true,autoX:false,conflicts:true});
-let stats = LS.get('stats',{played:0,wins:0,streak:0,maxStreak:0,lastDaily:null,times:[],dailyTimes:[],bestDaily:null});
+let settings = LS.get('settings',{sound:true,haptic:true,autoX:false,conflicts:true,themeLight:false});
+if(settings.themeLight===undefined) settings.themeLight=(settings.theme==='light'); // migrate old field
+delete settings.theme; LS.set('settings',settings);
+let stats = LS.get('stats',{played:0,wins:0,streak:0,maxStreak:0,lastDaily:null,times:[],dailyTimes:[],bestDaily:null,bestPractice:{}});
+if(!stats.bestPractice) stats.bestPractice={};
 
 // ============ Audio ============
 let AC=null;
@@ -387,7 +390,7 @@ function generatePuzzle(seed,n){
 }
 
 // ============ Colors ============
-const PALETTE=['#ff6b6b','#ffd93d','#6bcB77','#4d96ff','#c780ff','#ff9f45','#4dd6c1','#f48fb1','#a3d977','#9aa0ff'];
+const PALETTE=['#ff5a5a','#ff9f33','#cddc39','#5fd35f','#2ec9a0','#28d2d2','#3aa0ff','#7c6cff','#c44dff','#ff5db1'];
 
 // ============ Game state ============
 let mode='daily', N=8, puzzle=null, cellState=[], history=[], timer=0, timerInt=null, running=false, solved=false, practiceN=7;
@@ -534,6 +537,7 @@ function checkWin(){
 function win(){
   solved=true; stopTimer(); SFX.win(); vibrate([0,40,40,60]); launchConfetti();
   lastEarned=0;
+  const clean=(hintsUsed===0);
   if(mode==='daily'){
     if(stats.lastDaily!==puzzleNo()){
       stats.played++; stats.wins++;
@@ -541,14 +545,15 @@ function win(){
       if(stats.lastDaily===puzzleNo()-1) stats.streak++; else stats.streak=1;
       if(stats.streak>stats.maxStreak)stats.maxStreak=stats.streak;
       stats.lastDaily=puzzleNo();
-      stats.dailyTimes.push(timer);
-      if(stats.bestDaily==null||timer<stats.bestDaily)stats.bestDaily=timer;
+      // record time/best only for clean (no-hint) solves
+      if(clean){ stats.dailyTimes.push(timer); if(stats.bestDaily==null||timer<stats.bestDaily)stats.bestDaily=timer; }
       LS.set('stats',stats);
       LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true});
-      lastEarned = 10 + (hintsUsed===0?5:0);
+      lastEarned = 10 + (clean?5:0);
     }
   } else {
-    lastEarned = 2 + (hintsUsed===0?1:0);
+    if(clean && (stats.bestPractice[N]==null||timer<stats.bestPractice[N])){ stats.bestPractice[N]=timer; LS.set('stats',stats); }
+    lastEarned = 2 + (clean?1:0);
   }
   if(lastEarned>0){ coins+=lastEarned; LS.set('coins',coins); updateCoins(); }
   showWin();
@@ -561,11 +566,14 @@ function showSolution(){
 function showWin(){
   const isDaily=mode==='daily';
   document.getElementById('winTitle').textContent= isDaily?'¡Astrella resuelto! ★':'¡Resuelto! ★';
-  document.getElementById('winSub').textContent= isDaily?('Diario #'+puzzleNo()):('Práctica '+N+'×'+N);
-  document.getElementById('winTime').textContent=fmt(timer);
+  let sub = isDaily?('Diario #'+puzzleNo()):('Práctica '+N+'×'+N);
+  if(hintsUsed>0) sub += ' · '+hintsUsed+(hintsUsed===1?' pista':' pistas');
+  document.getElementById('winSub').textContent=sub;
+  document.getElementById('winTime').textContent=fmt(timer)+(hintsUsed>0?' *':'');
   document.getElementById('wsStreak').textContent=stats.streak;
   document.getElementById('wsPlayed').textContent=stats.played;
-  document.getElementById('wsBest').textContent=stats.bestDaily!=null?fmt(stats.bestDaily):'—';
+  const _best = isDaily?stats.bestDaily:stats.bestPractice[N];
+  document.getElementById('wsBest').textContent=_best!=null?fmt(_best):'—';
   document.getElementById('btnShare').style.display=isDaily?'flex':'none';
   document.getElementById('comeBack').style.display=isDaily?'block':'none';
   document.getElementById('winCoins').textContent=(lastEarned>0?('+'+lastEarned+' 🪙   ·   '):'')+'Tienes '+coins+' 🪙';
@@ -580,7 +588,7 @@ function shareText(){
 async function doShare(){
   const txt=shareText();
   try{
-    if(navigator.share){ await navigator.share({text:txt}); return; }
+    if(navigator.share){ await navigator.share({text:txt}); toast('¡Compartido! 📤'); return; }
   }catch(e){}
   try{ await navigator.clipboard.writeText(txt); toast('Resultado copiado 📋'); }
   catch(e){ prompt('Copia tu resultado:',txt); }
@@ -707,10 +715,13 @@ function startTut(){ tutStep=0; renderTut(); show('tutOverlay'); }
 function endTut(){ hide('tutOverlay'); LS.set('tutSeen',true); }
 
 // ============ Modals ============
-function show(id){document.getElementById(id).classList.add('show');}
-function hide(id){document.getElementById(id).classList.remove('show');}
-document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',e=>e.target.closest('.overlay').classList.remove('show')));
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+let timerPaused=false;
+function pauseTimer(){ if(running){ clearInterval(timerInt); running=false; timerPaused=true; } }
+function resumeTimer(){ if(timerPaused){ timerPaused=false; if(!solved) startTimer(); } }
+function show(id){ if(id!=='winOverlay') pauseTimer(); document.getElementById(id).classList.add('show'); }
+function hide(id){ document.getElementById(id).classList.remove('show'); resumeTimer(); }
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',e=>{e.target.closest('.overlay').classList.remove('show');resumeTimer();}));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('show');resumeTimer();}}));
 
 document.getElementById('btnHelp').onclick=()=>startTut();
 document.getElementById('btnStats').onclick=()=>{renderStats();show('statsOverlay');};
