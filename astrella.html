@@ -64,6 +64,8 @@
   .cell .xx{color:rgba(0,0,0,.42);font-size:18px;font-weight:700;}
   [data-theme="dark"] .cell .xx{color:rgba(0,0,0,.5);}
   .cell.bad .star{color:var(--bad);text-shadow:0 0 10px rgba(255,93,122,.8);}
+  .cell.hintstar .star{color:var(--accent);text-shadow:0 0 9px rgba(255,210,74,.85);}
+  .cell.hintstar{box-shadow:inset 0 0 0 2px var(--accent);}
   .cell.thick-t{box-shadow:inset 0 3px 0 0 rgba(0,0,0,.45);}
   @keyframes pop{0%{transform:scale(.2);opacity:.2}100%{transform:scale(1);opacity:1}}
   .controls{width:100%;max-width:520px;display:flex;gap:8px;margin:12px 0 4px;}
@@ -245,7 +247,7 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <div class="row"><span>Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
     <div class="row"><span>Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
     <div class="row"><span>Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
-    <p style="margin-top:14px;font-size:12px">Astrella v1.2 · Hecho con ♥ · Sin anuncios · Offline</p>
+    <p style="margin-top:14px;font-size:12px">Astrella v1.3 · Hecho con ♥ · Sin anuncios · Offline</p>
   </div>
 </div>
 
@@ -452,6 +454,7 @@ const PALETTE=['#ff5a5a','#ff9f33','#cddc39','#5fd35f','#2ec9a0','#28d2d2','#3aa
 // ============ Game state ============
 let mode='daily', N=8, puzzle=null, cellState=[], history=[], timer=0, timerInt=null, running=false, solved=false, practiceN=7;
 let coins=LS.get('coins',15), hintsUsed=0, lastEarned=0; const HINT_COST=5;
+let hintCells=new Set();
 const board=document.getElementById('board');
 
 function dayNumber(){ const now=new Date(); const utc=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()); return Math.floor((utc-Date.UTC(2024,0,1))/86400000); }
@@ -462,7 +465,7 @@ function stopTimer(){ running=false; clearInterval(timerInt); }
 function fmt(s){ const m=Math.floor(s/60); return m+':'+String(s%60).padStart(2,'0'); }
 
 function newGame(){
-  solved=false; stopTimer(); timer=0; history=[]; hintsUsed=0;
+  solved=false; stopTimer(); timer=0; history=[]; hintsUsed=0; hintCells=new Set();
   if(mode==='daily'){
     N=8;
     const dn=dayNumber();
@@ -472,7 +475,7 @@ function newGame(){
     document.getElementById('diffSeg').style.display='none';
     // restore saved progress for today
     const sp=LS.get('dailyProgress',null);
-    if(sp&&sp.no===puzzleNo()&&sp.n===N){ cellState=sp.state; timer=sp.timer||0; hintsUsed=sp.hintsUsed||0; }
+    if(sp&&sp.no===puzzleNo()&&sp.n===N){ cellState=sp.state; timer=sp.timer||0; hintsUsed=sp.hintsUsed||0; hintCells=new Set(sp.hints||[]); }
     else cellState=Array.from({length:N},()=>new Array(N).fill(0));
   }else{
     N=practiceN;
@@ -521,6 +524,7 @@ function shade(hex,p){ // p>0 lighten, p<0 darken
 
 function onCell(r,c){
   if(solved) return;
+  if(hintCells.has(r+','+c)){ toast('Pista fija ⭐'); vibrate(8); return; }
   actx();
   if(!running) startTimer();
   pushHistory();
@@ -537,9 +541,9 @@ function autoMark(r,c){
   for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=r+dr,nc=c+dc;
     if(nr>=0&&nr<N&&nc>=0&&nc<N&&cellState[nr][nc]===0)cellState[nr][nc]=2;}
 }
-function pushHistory(){ history.push(cellState.map(row=>row.slice())); if(history.length>200)history.shift(); }
-function undo(){ if(!history.length||solved)return; cellState=history.pop(); renderAll(); saveDaily(); SFX.clear(); }
-function clearBoard(){ if(solved)return; pushHistory(); cellState=Array.from({length:N},()=>new Array(N).fill(0)); renderAll(); saveDaily(); SFX.clear(); }
+function pushHistory(){ history.push({s:cellState.map(row=>row.slice()),h:[...hintCells]}); if(history.length>200)history.shift(); }
+function undo(){ if(!history.length||solved)return; const p=history.pop(); cellState=p.s; hintCells=new Set(p.h); renderAll(); saveDaily(); SFX.clear(); }
+function clearBoard(){ if(solved)return; pushHistory(); for(let r=0;r<N;r++)for(let c=0;c<N;c++){ if(!hintCells.has(r+','+c)) cellState[r][c]=0; } renderAll(); saveDaily(); SFX.clear(); }
 
 function conflicts(){
   // returns Set of "r,c" star cells in conflict
@@ -565,6 +569,7 @@ function renderAll(){
   for(let i=0;i<cells.length;i++){
     const el=cells[i]; const r=+el.dataset.r,c=+el.dataset.c; const v=cellState[r][c];
     el.classList.toggle('bad',v===1&&bad.has(r+','+c));
+    el.classList.toggle('hintstar',v===1&&hintCells.has(r+','+c)&&!bad.has(r+','+c));
     if(v===1) el.innerHTML='<span class="star">★</span>';
     else if(v===2) el.innerHTML='<span class="xx">✕</span>';
     else el.innerHTML='';
@@ -604,7 +609,7 @@ function win(){
       // record time/best only for clean (no-hint) solves
       if(clean){ stats.dailyTimes.push(timer); if(stats.bestDaily==null||timer<stats.bestDaily)stats.bestDaily=timer; }
       LS.set('stats',stats);
-      LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true,hintsUsed});
+      LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true,hintsUsed,hints:[...hintCells]});
       lastEarned = 10 + (clean?5:0);
     }
   } else {
@@ -676,14 +681,14 @@ function hint(){
   if(!target) return;
   pushHistory();
   coins-=HINT_COST; hintsUsed++; LS.set('coins',coins); updateCoins();
-  const[r,c]=target; cellState[r][c]=1; SFX.hint(); vibrate(15);
+  const[r,c]=target; cellState[r][c]=1; hintCells.add(r+','+c); SFX.hint(); vibrate(15);
   renderAll(); saveDaily();
   if(!running) startTimer();
   checkWin();
 }
 
 function saveDaily(){
-  if(mode==='daily' && !solved) LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,hintsUsed});
+  if(mode==='daily' && !solved) LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,hintsUsed,hints:[...hintCells]});
 }
 
 // ============ Confetti ============
