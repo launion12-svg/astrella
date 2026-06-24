@@ -400,7 +400,7 @@ const board=document.getElementById('board');
 function dayNumber(){ const now=new Date(); const utc=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()); return Math.floor((utc-Date.UTC(2024,0,1))/86400000); }
 function puzzleNo(){ return dayNumber()+1; }
 
-function startTimer(){ if(running||solved)return; running=true; timerInt=setInterval(()=>{timer++;renderMeta();},1000); }
+function startTimer(){ if(running||solved)return; running=true; timerInt=setInterval(()=>{timer++;renderMeta();saveDaily();},1000); }
 function stopTimer(){ running=false; clearInterval(timerInt); }
 function fmt(s){ const m=Math.floor(s/60); return m+':'+String(s%60).padStart(2,'0'); }
 
