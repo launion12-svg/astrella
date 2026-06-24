@@ -96,6 +96,12 @@
   .stat{background:var(--panel2);border-radius:12px;padding:10px 4px;text-align:center;}
   .stat .n{font-size:22px;font-weight:800;}
   .stat .l{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.2;}
+  .achgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+  .achi{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center;opacity:.4;transition:.2s;}
+  .achi.on{opacity:1;border-color:var(--accent2);}
+  .achi .aic{font-size:22px;line-height:1;}
+  .achi .att{font-size:10px;margin-top:5px;color:var(--muted);line-height:1.2;}
+  .achi.on .att{color:var(--text);}
   .wintime{font-size:40px;font-weight:800;text-align:center;color:var(--accent);margin:6px 0;}
   .row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);}
   .row:last-child{border-bottom:none;}
@@ -203,6 +209,8 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
       <div class="stat"><div class="n" id="stBest">—</div><div class="l">Mejor diario</div></div>
       <div class="stat"><div class="n" id="stAvg">—</div><div class="l">Media diario</div></div>
     </div>
+    <h3>Logros</h3>
+    <div id="achGrid" class="achgrid"></div>
   </div>
 </div>
 
@@ -269,6 +277,31 @@ if(settings.themeLight===undefined) settings.themeLight=(settings.theme==='light
 delete settings.theme; LS.set('settings',settings);
 let stats = LS.get('stats',{played:0,wins:0,streak:0,maxStreak:0,lastDaily:null,times:[],dailyTimes:[],bestDaily:null,bestPractice:{}});
 if(!stats.bestPractice) stats.bestPractice={};
+if(!stats.practiceSizesSolved) stats.practiceSizesSolved=[];
+let ach = LS.get('ach',{});
+const ACHS=[
+  {id:'first', ic:'⭐', t:'Primer destello', d:'Resuelve tu primer puzzle', chk:()=>true},
+  {id:'nohint', ic:'🧠', t:'Mente limpia', d:'Resuelve el diario sin pistas', chk:c=>c.mode==='daily'&&c.clean},
+  {id:'speed', ic:'⚡', t:'Rayo', d:'Resuelve en menos de 1:00 sin pistas', chk:c=>c.clean&&c.timer>0&&c.timer<60},
+  {id:'expert', ic:'🔭', t:'Experto', d:'Resuelve un tablero 9×9', chk:c=>c.N>=9},
+  {id:'streak3', ic:'🔥', t:'En racha', d:'Racha de 3 días', chk:()=>stats.streak>=3},
+  {id:'streak7', ic:'🌟', t:'Semana estelar', d:'Racha de 7 días', chk:()=>stats.streak>=7},
+  {id:'streak14', ic:'🌌', t:'Constelación', d:'Racha de 14 días', chk:()=>stats.streak>=14},
+  {id:'streak30', ic:'🌠', t:'Galaxia', d:'Racha de 30 días', chk:()=>stats.streak>=30},
+  {id:'d10', ic:'📅', t:'Habitual', d:'Completa 10 diarios', chk:()=>stats.played>=10},
+  {id:'d50', ic:'🎖️', t:'Veterano', d:'Completa 50 diarios', chk:()=>stats.played>=50},
+  {id:'rich', ic:'🪙', t:'Cazamonedas', d:'Acumula 100 monedas', chk:()=>coins>=100},
+  {id:'allsizes', ic:'🧩', t:'Todoterreno', d:'Resuelve en práctica los 4 tamaños', chk:()=>[6,7,8,9].every(s=>stats.practiceSizesSolved.includes(s))}
+];
+function checkAchievements(ctx){
+  const newly=[];
+  for(const a of ACHS){ if(!ach[a.id] && a.chk(ctx)){ ach[a.id]=true; newly.push(a); } }
+  if(newly.length){
+    LS.set('ach',ach);
+    coins += newly.length*5; LS.set('coins',coins); updateCoins();
+    newly.forEach((a,i)=> setTimeout(()=>toast('🏆 Logro: '+a.t+'  (+5 🪙)'), 1300 + i*1500));
+  }
+}
 
 // ============ Audio ============
 let AC=null;
@@ -552,10 +585,13 @@ function win(){
       lastEarned = 10 + (clean?5:0);
     }
   } else {
-    if(clean && (stats.bestPractice[N]==null||timer<stats.bestPractice[N])){ stats.bestPractice[N]=timer; LS.set('stats',stats); }
+    if(!stats.practiceSizesSolved.includes(N)) stats.practiceSizesSolved.push(N);
+    if(clean && (stats.bestPractice[N]==null||timer<stats.bestPractice[N])) stats.bestPractice[N]=timer;
+    LS.set('stats',stats);
     lastEarned = 2 + (clean?1:0);
   }
   if(lastEarned>0){ coins+=lastEarned; LS.set('coins',coins); updateCoins(); }
+  checkAchievements({mode, hintsUsed, timer, N, clean});
   if(mode==='daily') applyDailyDoneUI(true);
   showWin();
 }
@@ -753,6 +789,14 @@ function renderStats(){
   document.getElementById('stBest').textContent=stats.bestDaily!=null?fmt(stats.bestDaily):'—';
   const dt=stats.dailyTimes||[];
   document.getElementById('stAvg').textContent=dt.length?fmt(Math.round(dt.reduce((a,b)=>a+b,0)/dt.length)):'—';
+  const ag=document.getElementById('achGrid');
+  if(ag){ ag.innerHTML='';
+    for(const a of ACHS){ const un=!!ach[a.id];
+      const d=document.createElement('div'); d.className='achi'+(un?' on':''); d.title=a.d;
+      d.innerHTML='<div class="aic">'+(un?a.ic:'🔒')+'</div><div class="att">'+a.t+'</div>';
+      ag.appendChild(d);
+    }
+  }
 }
 
 // ============ Tabs & difficulty ============
