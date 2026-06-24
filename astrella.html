@@ -39,6 +39,9 @@
     background:var(--panel);color:var(--text);display:flex;align-items:center;justify-content:center;
     font-size:17px;cursor:pointer;transition:.15s;}
   .iconbtn:active{transform:scale(.92);}
+  .coins{display:flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--line);
+    border-radius:11px;padding:0 11px;height:38px;font-weight:800;font-size:14px;color:var(--accent);}
+  .coins .ic{font-size:15px;}
   .tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);
     border-radius:14px;padding:5px;margin:10px 0 6px;width:100%;max-width:520px;}
   .tab{flex:1;text-align:center;padding:9px;border-radius:10px;font-weight:700;font-size:14px;
@@ -129,6 +132,7 @@
 <header>
   <div class="logo"><span class="mark">★</span>Astrella</div>
   <div class="hbtns">
+    <div class="coins" id="coinPill" title="Monedas"><span class="ic">🪙</span><span id="coinVal">0</span></div>
     <div class="iconbtn" id="btnHelp" title="Cómo jugar">?</div>
     <div class="iconbtn" id="btnStats" title="Estadísticas">📊</div>
     <div class="iconbtn" id="btnSettings" title="Ajustes">⚙</div>
@@ -157,7 +161,7 @@
 <div class="controls">
   <button class="btn" id="btnUndo">↶ Deshacer</button>
   <button class="btn" id="btnClear">⨉ Limpiar</button>
-  <button class="btn" id="btnHint">💡 Pista</button>
+  <button class="btn" id="btnHint">💡 Pista · 5🪙</button>
 </div>
 <button class="btn primary" id="btnNew" style="display:none;max-width:520px;width:100%;margin-top:8px">↻ Nuevo puzzle</button>
 
@@ -175,6 +179,7 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
       <div class="stat"><div class="n" id="wsPlayed">0</div><div class="l">Jugados</div></div>
       <div class="stat"><div class="n" id="wsBest">—</div><div class="l">Mejor⏱</div></div>
     </div>
+    <div id="winCoins" style="margin:4px 0 8px;font-weight:800;color:var(--accent);font-size:15px"></div>
     <button class="btn primary" id="btnShare" style="margin-top:6px">📤 Compartir resultado</button>
     <button class="btn" id="btnWinClose" style="margin-top:8px">Cerrar</button>
     <p id="comeBack" style="margin-top:12px;display:none">Vuelve mañana para el próximo Astrella ★</p>
@@ -386,6 +391,7 @@ const PALETTE=['#ff6b6b','#ffd93d','#6bcB77','#4d96ff','#c780ff','#ff9f45','#4dd
 
 // ============ Game state ============
 let mode='daily', N=8, puzzle=null, cellState=[], history=[], timer=0, timerInt=null, running=false, solved=false, practiceN=7;
+let coins=LS.get('coins',15), hintsUsed=0, lastEarned=0; const HINT_COST=5;
 const board=document.getElementById('board');
 
 function dayNumber(){ const now=new Date(); const utc=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()); return Math.floor((utc-Date.UTC(2024,0,1))/86400000); }
@@ -396,7 +402,7 @@ function stopTimer(){ running=false; clearInterval(timerInt); }
 function fmt(s){ const m=Math.floor(s/60); return m+':'+String(s%60).padStart(2,'0'); }
 
 function newGame(){
-  solved=false; stopTimer(); timer=0; history=[];
+  solved=false; stopTimer(); timer=0; history=[]; hintsUsed=0;
   if(mode==='daily'){
     N=8;
     const dn=dayNumber();
@@ -527,17 +533,24 @@ function checkWin(){
 
 function win(){
   solved=true; stopTimer(); SFX.win(); vibrate([0,40,40,60]); launchConfetti();
-  if(mode==='daily' && stats.lastDaily!==puzzleNo()){
-    stats.played++; stats.wins++;
-    // streak
-    if(stats.lastDaily===puzzleNo()-1) stats.streak++; else stats.streak=1;
-    if(stats.streak>stats.maxStreak)stats.maxStreak=stats.streak;
-    stats.lastDaily=puzzleNo();
-    stats.dailyTimes.push(timer);
-    if(stats.bestDaily==null||timer<stats.bestDaily)stats.bestDaily=timer;
-    LS.set('stats',stats);
-    LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true});
+  lastEarned=0;
+  if(mode==='daily'){
+    if(stats.lastDaily!==puzzleNo()){
+      stats.played++; stats.wins++;
+      // streak
+      if(stats.lastDaily===puzzleNo()-1) stats.streak++; else stats.streak=1;
+      if(stats.streak>stats.maxStreak)stats.maxStreak=stats.streak;
+      stats.lastDaily=puzzleNo();
+      stats.dailyTimes.push(timer);
+      if(stats.bestDaily==null||timer<stats.bestDaily)stats.bestDaily=timer;
+      LS.set('stats',stats);
+      LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true});
+      lastEarned = 10 + (hintsUsed===0?5:0);
+    }
+  } else {
+    lastEarned = 2 + (hintsUsed===0?1:0);
   }
+  if(lastEarned>0){ coins+=lastEarned; LS.set('coins',coins); updateCoins(); }
   showWin();
 }
 function showSolution(){
@@ -555,6 +568,7 @@ function showWin(){
   document.getElementById('wsBest').textContent=stats.bestDaily!=null?fmt(stats.bestDaily):'—';
   document.getElementById('btnShare').style.display=isDaily?'flex':'none';
   document.getElementById('comeBack').style.display=isDaily?'block':'none';
+  document.getElementById('winCoins').textContent=(lastEarned>0?('+'+lastEarned+' 🪙   ·   '):'')+'Tienes '+coins+' 🪙';
   show('winOverlay');
 }
 
@@ -581,19 +595,20 @@ function toast(msg){
 // ============ Hint ============
 function hint(){
   if(solved)return;
-  // find a solution star not yet placed; place it
-  pushHistory();
-  for(const[r,c]of puzzle.sol){
-    if(cellState[r][c]!==1){
-      // clear any wrong star in same row/col
-      cellState[r][c]=1; SFX.hint(); vibrate(15);
-      const el=[...board.children].find(e=>+e.dataset.r===r&&+e.dataset.c===c);
-      renderAll(); saveDaily();
-      if(!running) startTimer();
-      checkWin();
-      return;
-    }
+  if(coins < HINT_COST){
+    toast('Sin monedas 🪙 — gánalas en modo Práctica o vuelve mañana');
+    SFX.err(); return;
   }
+  // find a solution star not yet placed
+  let target=null;
+  for(const[r,c]of puzzle.sol){ if(cellState[r][c]!==1){ target=[r,c]; break; } }
+  if(!target) return;
+  pushHistory();
+  coins-=HINT_COST; hintsUsed++; LS.set('coins',coins); updateCoins();
+  const[r,c]=target; cellState[r][c]=1; SFX.hint(); vibrate(15);
+  renderAll(); saveDaily();
+  if(!running) startTimer();
+  checkWin();
 }
 
 function saveDaily(){
@@ -667,7 +682,7 @@ const TUT=[
   },
   function(st){
     st.appendChild(el('h2',null,'Controles'));
-    st.appendChild(el('p',null,'Toca una casilla para alternar: vacío → ★ → ✕ → vacío. Usa <b>✕</b> para descartar casillas. ¿Atascado? Pulsa <b>💡 Pista</b>.'));
+    st.appendChild(el('p',null,'Toca una casilla: vacío → ★ → ✕ → vacío. Usa <b>✕</b> para descartar. ¿Atascado? Una <b>💡 Pista</b> cuesta monedas 🪙 que ganas al resolver puzzles (y con el bonus diario).'));
     const row=el('div','mini-row');
     row.appendChild(miniGrid(1,null,null,null,null));
     row.appendChild(miniGrid(1,null,[[0,0]],null,null));
@@ -759,9 +774,19 @@ function drawBg(){sctx.clearRect(0,0,sbg.width,sbg.height);const now=performance
     sctx.beginPath();sctx.arc(s.x,s.y,s.r,0,7);sctx.fill();}
   sctx.globalAlpha=1;requestAnimationFrame(drawBg);}
 
+// ============ Coins helpers ============
+function updateCoins(){ const v=document.getElementById('coinVal'); if(v) v.textContent=coins; }
+function dailyBonus(){
+  const today=puzzleNo(); const last=LS.get('lastBonus',-1);
+  if(last!==today){
+    coins+=5; LS.set('coins',coins); LS.set('lastBonus',today); updateCoins();
+    setTimeout(()=>toast('+5 🪙 ¡Bonus diario!'),900);
+  }
+}
+
 // ============ Boot ============
 window.addEventListener('resize',()=>{initBg();});
-applyTheme(); initBg(); drawBg(); newGame();
+applyTheme(); initBg(); drawBg(); newGame(); updateCoins(); dailyBonus();
 if(!LS.get('tutSeen',false)){ startTut(); LS.set('tutSeen',true); }
 
 })();
