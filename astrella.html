@@ -69,10 +69,11 @@
   .cell.thick-t{box-shadow:inset 0 3px 0 0 rgba(0,0,0,.45);}
   @keyframes pop{0%{transform:scale(.2);opacity:.2}100%{transform:scale(1);opacity:1}}
   .controls{width:100%;max-width:520px;display:flex;gap:7px;margin:8px 0 4px;}
-  .btn{flex:1;padding:12px 6px;border-radius:13px;border:1px solid var(--line);background:var(--panel);
+  .btn{padding:12px 6px;border-radius:13px;border:1px solid var(--line);background:var(--panel);
     color:var(--text);font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;
     justify-content:center;gap:5px;transition:.15s;white-space:nowrap;}
   .btn:active{transform:scale(.96);}
+  .controls .btn{flex:1;}
   .btn.primary{background:linear-gradient(135deg,var(--accent2),#9a6bff);color:#fff;border:none;}
   .btn:disabled{opacity:.4;}
   .hint{width:100%;max-width:520px;text-align:center;color:var(--muted);font-size:11.5px;margin-top:6px;line-height:1.45;}
@@ -247,7 +248,7 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <div class="row"><span>Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
     <div class="row"><span>Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
     <div class="row"><span>Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
-    <p style="margin-top:14px;font-size:12px">Astrella v1.4 · Hecho con ♥ · Sin anuncios · Offline</p>
+    <p style="margin-top:14px;font-size:12px">Astrella v1.5 · Hecho con ♥ · Sin anuncios · Offline</p>
   </div>
 </div>
 
