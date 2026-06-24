@@ -569,7 +569,7 @@ function renderAll(){
   for(let i=0;i<cells.length;i++){
     const el=cells[i]; const r=+el.dataset.r,c=+el.dataset.c; const v=cellState[r][c];
     el.classList.toggle('bad',v===1&&bad.has(r+','+c));
-    el.classList.toggle('hintstar',v===1&&hintCells.has(r+','+c)&&!bad.has(r+','+c));
+    el.classList.toggle('hintstar',v===1&&hintCells.has(r+','+c));
     if(v===1) el.innerHTML='<span class="star">★</span>';
     else if(v===2) el.innerHTML='<span class="xx">✕</span>';
     else el.innerHTML='';
