@@ -158,12 +158,13 @@
 
 <div id="boardWrap"><div id="board"></div></div>
 
-<div class="controls">
+<div class="controls" id="controls">
   <button class="btn" id="btnUndo">↶ Deshacer</button>
   <button class="btn" id="btnClear">⨉ Limpiar</button>
   <button class="btn" id="btnHint">💡 Pista · 5🪙</button>
 </div>
 <button class="btn primary" id="btnNew" style="display:none;max-width:520px;width:100%;margin-top:8px">↻ Nuevo puzzle</button>
+<button class="btn primary" id="btnResult" style="display:none;max-width:520px;width:100%;margin-top:8px">📤 Ver mi resultado</button>
 
 <div class="hint">Toca una celda para poner ★. Otra vez para marcar ✕. Otra para borrar.<br>
 Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <b>no pueden tocarse</b> (ni en diagonal).</div>
@@ -174,9 +175,9 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <h2 id="winTitle">¡Resuelto! ★</h2>
     <p id="winSub">Astrella diario</p>
     <div class="wintime" id="winTime">0:00</div>
-    <div class="statgrid" style="grid-template-columns:repeat(3,1fr)">
-      <div class="stat"><div class="n" id="wsStreak">0</div><div class="l">Racha 🔥</div></div>
-      <div class="stat"><div class="n" id="wsPlayed">0</div><div class="l">Jugados</div></div>
+    <div class="statgrid" id="winStatGrid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat" id="wsStreakBox"><div class="n" id="wsStreak">0</div><div class="l">Racha 🔥</div></div>
+      <div class="stat" id="wsPlayedBox"><div class="n" id="wsPlayed">0</div><div class="l">Jugados</div></div>
       <div class="stat"><div class="n" id="wsBest">—</div><div class="l">Mejor⏱</div></div>
     </div>
     <div id="winCoins" style="margin:4px 0 8px;font-weight:800;color:var(--accent);font-size:15px"></div>
@@ -236,7 +237,7 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <div class="row"><span>Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
     <div class="row"><span>Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
     <div class="row"><span>Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
-    <p style="margin-top:14px;font-size:12px">Astrella v1.0 · Hecho con ♥ · Sin anuncios · Offline</p>
+    <p style="margin-top:14px;font-size:12px">Astrella v1.1 · Hecho con ♥ · Sin anuncios · Offline</p>
   </div>
 </div>
 
@@ -426,11 +427,10 @@ function newGame(){
   }
   buildBoard();
   renderMeta();
-  // if daily already done, show solution + come back
-  if(mode==='daily'&&stats.lastDaily===puzzleNo()){
-    showSolution(); solved=true;
-    renderAll();
-  }
+  // if daily already done, show solution + completed state
+  const dailyDone=(mode==='daily'&&stats.lastDaily===puzzleNo());
+  if(dailyDone){ showSolution(); solved=true; renderAll(); }
+  applyDailyDoneUI(dailyDone);
 }
 
 function buildBoard(){
@@ -439,7 +439,7 @@ function buildBoard(){
   board.innerHTML='';
   const light=(settings.themeLight!==undefined)?settings.themeLight:(settings.theme==='light');
   const dark=!light;
-  const bc = dark? 'rgba(0,0,0,.60)' : 'rgba(0,0,0,.45)';
+  const bc = dark? 'rgba(0,0,0,.80)' : 'rgba(0,0,0,.58)';
   const thin = dark? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.10)';
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){
     const d=document.createElement('div');
@@ -556,6 +556,7 @@ function win(){
     lastEarned = 2 + (clean?1:0);
   }
   if(lastEarned>0){ coins+=lastEarned; LS.set('coins',coins); updateCoins(); }
+  if(mode==='daily') applyDailyDoneUI(true);
   showWin();
 }
 function showSolution(){
@@ -574,6 +575,9 @@ function showWin(){
   document.getElementById('wsPlayed').textContent=stats.played;
   const _best = isDaily?stats.bestDaily:stats.bestPractice[N];
   document.getElementById('wsBest').textContent=_best!=null?fmt(_best):'—';
+  document.getElementById('wsStreakBox').style.display=isDaily?'':'none';
+  document.getElementById('wsPlayedBox').style.display=isDaily?'':'none';
+  document.getElementById('winStatGrid').style.gridTemplateColumns=isDaily?'repeat(3,1fr)':'repeat(1,1fr)';
   document.getElementById('btnShare').style.display=isDaily?'flex':'none';
   document.getElementById('comeBack').style.display=isDaily?'block':'none';
   document.getElementById('winCoins').textContent=(lastEarned>0?('+'+lastEarned+' 🪙   ·   '):'')+'Tienes '+coins+' 🪙';
@@ -732,6 +736,12 @@ document.getElementById('btnUndo').onclick=undo;
 document.getElementById('btnClear').onclick=clearBoard;
 document.getElementById('btnHint').onclick=hint;
 document.getElementById('btnNew').onclick=newGame;
+document.getElementById('btnResult').onclick=()=>showWin();
+function applyDailyDoneUI(done){
+  const c=document.getElementById('controls'); const br=document.getElementById('btnResult');
+  if(c) c.style.display=done?'none':'flex';
+  if(br) br.style.display=done?'block':'none';
+}
 document.getElementById('tutNext').onclick=()=>{ if(tutStep===TUT.length-1) endTut(); else { tutStep++; renderTut(); } };
 document.getElementById('tutSkip').onclick=endTut;
 
