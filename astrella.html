@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0e1020">
+<title>Astrella</title>
+<style>
+  :root{
+    --bg:#0e1020; --bg2:#151836; --panel:#1b1f44; --panel2:#232860;
+    --text:#eaf0ff; --muted:#9aa6d6; --line:rgba(255,255,255,.10);
+    --accent:#ffd24a; --accent2:#7c8cff; --good:#5dff9b; --bad:#ff5d7a;
+    --star:#11132a; --grid-line:rgba(0,0,0,.28);
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+  }
+  [data-theme="light"]{
+    --bg:#eef1fb; --bg2:#e3e8f7; --panel:#ffffff; --panel2:#f1f4ff;
+    --text:#1a1d33; --muted:#5a648c; --line:rgba(0,0,0,.10);
+    --accent:#f0a500; --accent2:#5566ee; --good:#1aa05a; --bad:#e23b5b;
+    --star:#15172e; --grid-line:rgba(0,0,0,.18);
+    --shadow:0 10px 30px rgba(60,70,120,.18);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none;user-select:none;font-family:-apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  html,body{height:100%;}
+  body{
+    background:radial-gradient(120% 100% at 50% 0%, var(--bg2), var(--bg));
+    color:var(--text); display:flex; flex-direction:column; align-items:center;
+    min-height:100%; overflow-x:hidden;
+    padding:env(safe-area-inset-top,8px) 12px env(safe-area-inset-bottom,10px);
+  }
+  #stars-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;}
+  header{width:100%;max-width:520px;display:flex;align-items:center;justify-content:space-between;
+    padding:6px 2px 2px;}
+  .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:22px;letter-spacing:.5px;}
+  .logo .mark{color:var(--accent);text-shadow:0 0 12px rgba(255,210,74,.55);font-size:22px;}
+  .hbtns{display:flex;gap:6px;}
+  .iconbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);
+    background:var(--panel);color:var(--text);display:flex;align-items:center;justify-content:center;
+    font-size:17px;cursor:pointer;transition:.15s;}
+  .iconbtn:active{transform:scale(.92);}
+  .tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:5px;margin:10px 0 6px;width:100%;max-width:520px;}
+  .tab{flex:1;text-align:center;padding:9px;border-radius:10px;font-weight:700;font-size:14px;
+    color:var(--muted);cursor:pointer;transition:.15s;}
+  .tab.active{background:linear-gradient(135deg,var(--accent2),#9a6bff);color:#fff;box-shadow:var(--shadow);}
+  .meta{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;
+    margin:6px 2px;font-size:13px;color:var(--muted);min-height:22px;}
+  .meta b{color:var(--text);}
+  .chip{background:var(--panel);border:1px solid var(--line);padding:5px 10px;border-radius:20px;font-weight:600;}
+  #boardWrap{width:100%;max-width:520px;display:flex;justify-content:center;margin:4px 0;}
+  #board{display:grid;gap:0;background:var(--grid-line);border-radius:14px;overflow:hidden;
+    border:3px solid var(--grid-line);box-shadow:var(--shadow);touch-action:manipulation;
+    width:min(94vw,460px);height:min(94vw,460px);}
+  .cell{position:relative;display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--grid-line);cursor:pointer;font-size:26px;line-height:1;
+    transition:background .12s, transform .06s;}
+  .cell:active{transform:scale(.97);}
+  .cell .star{color:var(--star);filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));
+    animation:pop .22s cubic-bezier(.2,1.6,.4,1);}
+  .cell .xx{color:rgba(0,0,0,.42);font-size:18px;font-weight:700;}
+  [data-theme="dark"] .cell .xx{color:rgba(0,0,0,.5);}
+  .cell.bad .star{color:var(--bad);text-shadow:0 0 10px rgba(255,93,122,.8);}
+  .cell.thick-t{box-shadow:inset 0 3px 0 0 rgba(0,0,0,.45);}
+  @keyframes pop{0%{transform:scale(.2);opacity:.2}100%{transform:scale(1);opacity:1}}
+  .controls{width:100%;max-width:520px;display:flex;gap:8px;margin:12px 0 4px;}
+  .btn{flex:1;padding:13px;border-radius:13px;border:1px solid var(--line);background:var(--panel);
+    color:var(--text);font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;
+    justify-content:center;gap:6px;transition:.15s;}
+  .btn:active{transform:scale(.96);}
+  .btn.primary{background:linear-gradient(135deg,var(--accent2),#9a6bff);color:#fff;border:none;}
+  .btn:disabled{opacity:.4;}
+  .hint{width:100%;max-width:520px;text-align:center;color:var(--muted);font-size:12.5px;margin-top:8px;line-height:1.5;}
+  .seg{display:flex;gap:6px;width:100%;max-width:520px;margin:2px 0 0;}
+  .seg .s{flex:1;text-align:center;padding:8px;border-radius:10px;background:var(--panel);
+    border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;}
+  .seg .s.active{background:var(--panel2);color:var(--text);border-color:var(--accent2);}
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(5,7,20,.6);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;z-index:50;padding:18px;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:22px;width:100%;max-width:380px;box-shadow:var(--shadow);position:relative;
+    animation:rise .25s ease;max-height:88vh;overflow:auto;}
+  @keyframes rise{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+  .modal h2{font-size:21px;margin-bottom:4px;}
+  .modal h3{font-size:15px;margin:14px 0 6px;color:var(--accent);}
+  .modal p,.modal li{color:var(--muted);font-size:14px;line-height:1.6;}
+  .modal ul{padding-left:18px;margin:6px 0;}
+  .close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:9px;
+    border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer;font-size:16px;}
+  .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0;}
+  .stat{background:var(--panel2);border-radius:12px;padding:10px 4px;text-align:center;}
+  .stat .n{font-size:22px;font-weight:800;}
+  .stat .l{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.2;}
+  .wintime{font-size:40px;font-weight:800;text-align:center;color:var(--accent);margin:6px 0;}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);}
+  .row:last-child{border-bottom:none;}
+  .switch{width:48px;height:28px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);
+    position:relative;cursor:pointer;transition:.2s;}
+  .switch.on{background:var(--accent2);}
+  .switch .k{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;}
+  .switch.on .k{left:23px;}
+  .conf{position:fixed;inset:0;pointer-events:none;z-index:60;}
+  /* tutorial */
+  .tut-card{max-width:400px;}
+  .tut-stage{min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:6px 0;}
+  .tut-stage h2{font-size:22px;}
+  .tut-stage p{font-size:14.5px;color:var(--muted);line-height:1.6;max-width:330px;}
+  .tut-stage p b{color:var(--text);}
+  .mini{display:grid;gap:2px;background:var(--grid-line);border:2px solid var(--grid-line);border-radius:10px;overflow:hidden;}
+  .mini .mc{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .mini .mc .s{color:#11132a;}
+  .mini .mc.bad{outline:3px solid var(--bad);outline-offset:-3px;z-index:1;}
+  .mini .mc.bad .s{color:var(--bad);}
+  .mini-row{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:8px;}
+  .tag.ok{background:rgba(93,255,155,.16);color:var(--good);}
+  .tag.no{background:rgba(255,93,122,.16);color:var(--bad);}
+  .tut-dots{display:flex;gap:7px;justify-content:center;margin:16px 0 12px;}
+  .tut-dots .d{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.2s;}
+  .tut-dots .d.on{background:var(--accent2);width:20px;border-radius:6px;}
+  .tut-nav{display:flex;gap:8px;}
+</style>
+</head>
+<body>
+<canvas id="stars-bg"></canvas>
+
+<header>
+  <div class="logo"><span class="mark">★</span>Astrella</div>
+  <div class="hbtns">
+    <div class="iconbtn" id="btnHelp" title="Cómo jugar">?</div>
+    <div class="iconbtn" id="btnStats" title="Estadísticas">📊</div>
+    <div class="iconbtn" id="btnSettings" title="Ajustes">⚙</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-mode="daily">★ Diario</div>
+  <div class="tab" data-mode="practice">∞ Práctica</div>
+</div>
+
+<div class="meta">
+  <span id="metaLeft" class="chip">Cargando…</span>
+  <span id="metaRight" class="chip">⏱ 0:00</span>
+</div>
+
+<div class="seg" id="diffSeg" style="display:none">
+  <div class="s" data-n="6">6×6 Fácil</div>
+  <div class="s active" data-n="7">7×7 Medio</div>
+  <div class="s" data-n="8">8×8 Difícil</div>
+  <div class="s" data-n="9">9×9 Experto</div>
+</div>
+
+<div id="boardWrap"><div id="board"></div></div>
+
+<div class="controls">
+  <button class="btn" id="btnUndo">↶ Deshacer</button>
+  <button class="btn" id="btnClear">⨉ Limpiar</button>
+  <button class="btn" id="btnHint">💡 Pista</button>
+</div>
+<button class="btn primary" id="btnNew" style="display:none;max-width:520px;width:100%;margin-top:8px">↻ Nuevo puzzle</button>
+
+<div class="hint">Toca una celda para poner ★. Otra vez para marcar ✕. Otra para borrar.<br>
+Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <b>no pueden tocarse</b> (ni en diagonal).</div>
+
+<!-- WIN MODAL -->
+<div class="overlay" id="winOverlay">
+  <div class="modal" style="text-align:center">
+    <h2 id="winTitle">¡Resuelto! ★</h2>
+    <p id="winSub">Astrella diario</p>
+    <div class="wintime" id="winTime">0:00</div>
+    <div class="statgrid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat"><div class="n" id="wsStreak">0</div><div class="l">Racha 🔥</div></div>
+      <div class="stat"><div class="n" id="wsPlayed">0</div><div class="l">Jugados</div></div>
+      <div class="stat"><div class="n" id="wsBest">—</div><div class="l">Mejor⏱</div></div>
+    </div>
+    <button class="btn primary" id="btnShare" style="margin-top:6px">📤 Compartir resultado</button>
+    <button class="btn" id="btnWinClose" style="margin-top:8px">Cerrar</button>
+    <p id="comeBack" style="margin-top:12px;display:none">Vuelve mañana para el próximo Astrella ★</p>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="overlay" id="statsOverlay">
+  <div class="modal">
+    <button class="close" data-close>✕</button>
+    <h2>Estadísticas</h2>
+    <div class="statgrid">
+      <div class="stat"><div class="n" id="stPlayed">0</div><div class="l">Jugados</div></div>
+      <div class="stat"><div class="n" id="stWin">0%</div><div class="l">% Éxito</div></div>
+      <div class="stat"><div class="n" id="stStreak">0</div><div class="l">Racha</div></div>
+      <div class="stat"><div class="n" id="stMax">0</div><div class="l">Máx racha</div></div>
+    </div>
+    <h3>Tiempo</h3>
+    <div class="statgrid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="stat"><div class="n" id="stBest">—</div><div class="l">Mejor diario</div></div>
+      <div class="stat"><div class="n" id="stAvg">—</div><div class="l">Media diario</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="overlay" id="helpOverlay">
+  <div class="modal">
+    <button class="close" data-close>✕</button>
+    <h2>Cómo jugar ★</h2>
+    <p>Coloca estrellas en la rejilla siguiendo estas reglas:</p>
+    <ul>
+      <li>Exactamente <b>1 estrella por fila</b>.</li>
+      <li>Exactamente <b>1 estrella por columna</b>.</li>
+      <li>Exactamente <b>1 estrella por región de color</b>.</li>
+      <li>Dos estrellas <b>no pueden tocarse</b>, ni siquiera en diagonal.</li>
+    </ul>
+    <p>Cada puzzle tiene <b>una única solución</b> y se resuelve solo con lógica, sin adivinar.</p>
+    <h3>Controles</h3>
+    <p>Toca una celda para alternar: vacío → <b>★ estrella</b> → <b>✕ marca</b> (para descartar) → vacío.</p>
+    <p>Usa ✕ para anotar dónde <i>no</i> puede ir una estrella. ¡Es la clave!</p>
+    <h3>Diario</h3>
+    <p>Un puzzle nuevo cada día, igual para todo el mundo. Mantén tu racha 🔥 y comparte tu tiempo.</p>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="settingsOverlay">
+  <div class="modal">
+    <button class="close" data-close>✕</button>
+    <h2>Ajustes</h2>
+    <div class="row"><span>Tema claro</span><div class="switch" id="swTheme"><div class="k"></div></div></div>
+    <div class="row"><span>Sonido</span><div class="switch on" id="swSound"><div class="k"></div></div></div>
+    <div class="row"><span>Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
+    <div class="row"><span>Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
+    <div class="row"><span>Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
+    <p style="margin-top:14px;font-size:12px">Astrella v1.0 · Hecho con ♥ · Sin anuncios · Offline</p>
+  </div>
+</div>
+
+<!-- TUTORIAL MODAL -->
+<div class="overlay" id="tutOverlay">
+  <div class="modal tut-card">
+    <div class="tut-stage" id="tutStage"></div>
+    <div class="tut-dots" id="tutDots"></div>
+    <div class="tut-nav">
+      <button class="btn" id="tutSkip">Saltar</button>
+      <button class="btn primary" id="tutNext">Siguiente</button>
+    </div>
+  </div>
+</div>
+
+<canvas class="conf" id="confetti"></canvas>
+
+<script>
+"use strict";
+(function(){
+
+// ============ Storage ============
+const LS = {
+  get(k,d){ try{const v=localStorage.getItem('astrella_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;} },
+  set(k,v){ try{localStorage.setItem('astrella_'+k,JSON.stringify(v));}catch(e){} }
+};
+let settings = LS.get('settings',{theme:'dark',sound:true,haptic:true,autoX:false,conflicts:true});
+let stats = LS.get('stats',{played:0,wins:0,streak:0,maxStreak:0,lastDaily:null,times:[],dailyTimes:[],bestDaily:null});
+
+// ============ Audio ============
+let AC=null;
+function actx(){ if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}} return AC; }
+function snd(freq,dur,type,vol,to){
+  if(!settings.sound) return; const a=actx(); if(!a) return; const t=a.currentTime;
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
+  if(to)o.frequency.exponentialRampToValueAtTime(to,t+dur);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol||.15,t+.01);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+dur+.02);
+}
+const SFX={
+  star(){snd(560,.10,'sine',.16,760);},
+  mark(){snd(300,.06,'triangle',.10,260);},
+  clear(){snd(220,.05,'sine',.08);},
+  win(){ if(!settings.sound)return; [523,659,784,1046].forEach((f,i)=>setTimeout(()=>snd(f,.18,'triangle',.18),i*110)); },
+  err(){snd(160,.18,'sawtooth',.14,90);},
+  hint(){snd(880,.12,'sine',.12,1100);}
+};
+function vibrate(ms){ if(settings.haptic&&navigator.vibrate){try{navigator.vibrate(ms);}catch(e){}} }
+
+// ============ RNG ============
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function shuffle(arr,rng){for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+// ============ Puzzle generation ============
+// Solution: one star per row, distinct columns, no king-adjacency between consecutive rows.
+function genSolution(n,rng){
+  const cols=new Array(n).fill(-1);
+  const used=new Array(n).fill(false);
+  function place(r){
+    if(r===n) return true;
+    const order=shuffle([...Array(n).keys()],rng);
+    for(const c of order){
+      if(used[c]) continue;
+      if(r>0 && Math.abs(c-cols[r-1])<2) continue; // king-adjacent to prev row
+      cols[r]=c; used[c]=true;
+      if(place(r+1)) return true;
+      cols[r]=-1; used[c]=false;
+    }
+    return false;
+  }
+  return place(0)?cols:null;
+}
+const N4=[[1,0],[-1,0],[0,1],[0,-1]];
+// Grow n contiguous regions (uneven/snaky) seeded by stars, covering the whole grid.
+function growB(n,cols,rng){
+  const reg=Array.from({length:n},()=>new Array(n).fill(-1));
+  let remaining=n*n; const front=[];
+  function add(r,c,id){for(const[dr,dc]of N4){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&reg[nr][nc]===-1)front.push([nr,nc,id]);}}
+  for(let r=0;r<n;r++){reg[r][cols[r]]=r;remaining--;add(r,cols[r],r);}
+  let guard=n*n*40;
+  while(remaining>0&&front.length&&guard-->0){
+    const idx=Math.floor(rng()*front.length);const[r,c,id]=front.splice(idx,1)[0];
+    if(reg[r][c]===-1){reg[r][c]=id;remaining--;add(r,c,id);}
+  }
+  if(remaining>0){let ch=true;while(remaining>0&&ch){ch=false;
+    for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(reg[r][c]===-1){
+      for(const[dr,dc]of N4){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&reg[nr][nc]!==-1){reg[r][c]=reg[nr][nc];remaining--;ch=true;break;}}
+    }}}
+  return reg;
+}
+// Find up to `limit` solutions; each is an array of col-per-row.
+function solveAll(n,reg,limit){
+  const sols=[]; const usedCol=new Array(n).fill(false); const usedReg=new Array(n).fill(false); const cur=new Array(n);
+  function rec(r,prevCol){
+    if(sols.length>=limit)return; if(r===n){sols.push(cur.slice());return;}
+    for(let c=0;c<n;c++){
+      if(usedCol[c])continue; if(r>0&&Math.abs(c-prevCol)<2)continue;
+      const id=reg[r][c]; if(usedReg[id])continue;
+      usedCol[c]=true;usedReg[id]=true;cur[r]=c;rec(r+1,c);usedCol[c]=false;usedReg[id]=false;
+      if(sols.length>=limit)return;
+    }
+  }
+  rec(0,-99);return sols;
+}
+// True if region g stays connected after removing cell (ar,ac). starCol = col of g's star.
+function connectedAfterRemoval(n,reg,g,ar,ac,starCol){
+  const cells=[];for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(reg[r][c]===g&&!(r===ar&&c===ac))cells.push(r*n+c);
+  if(cells.length===0)return false;
+  const start=g*n+starCol; if(start===ar*n+ac)return false;
+  const seen=new Set([start]);const st=[start];
+  while(st.length){const v=st.pop();const r=(v/n)|0,c=v%n;
+    for(const[dr,dc]of N4){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&reg[nr][nc]===g&&!(nr===ar&&nc===ac)){const k=nr*n+nc;if(!seen.has(k)){seen.add(k);st.push(k);}}}}
+  return seen.size===cells.length;
+}
+// Reshape regions to force a UNIQUE solution (kills alternate solutions one by one).
+function refine(n,cols,reg,rng,maxIter){
+  for(let it=0;it<maxIter;it++){
+    const sols=solveAll(n,reg,2);
+    if(sols.length===1)return reg;
+    let A=null;for(const s of sols){let diff=false;for(let r=0;r<n;r++)if(s[r]!==cols[r]){diff=true;break;}if(diff){A=s;break;}}
+    if(!A)return reg;
+    const rows=shuffle([...Array(n).keys()],rng);let moved=false;
+    for(const r of rows){
+      const ac=A[r]; if(ac===cols[r])continue; const g=reg[r][ac];
+      const dirs=shuffle(N4.slice(),rng);
+      for(const[dr,dc]of dirs){const nr=r+dr,nc=ac+dc;if(nr<0||nr>=n||nc<0||nc>=n)continue;const h=reg[nr][nc];if(h===g)continue;
+        if(connectedAfterRemoval(n,reg,g,r,ac,cols[g])){reg[r][ac]=h;moved=true;break;}}
+      if(moved)break;
+    }
+    if(!moved)return null;
+  }
+  return solveAll(n,reg,2).length===1?reg:null;
+}
+function generatePuzzle(seed,n){
+  for(let a=0;a<200;a++){
+    const rng=mulberry32((seed*7919+a*104729)>>>0);
+    const cols=genSolution(n,rng); if(!cols)continue;
+    const reg=growB(n,cols,rng);
+    const out=refine(n,cols,reg,rng,80);
+    if(out){ return {n,reg:out,sol:cols.map((c,r)=>[r,c]),cols}; }
+  }
+  // fallback (extremely unlikely)
+  const rng=mulberry32(seed>>>0); const cols=genSolution(n,rng)||[...Array(n).keys()];
+  const reg=growB(n,cols,rng);
+  return {n,reg,sol:cols.map((c,r)=>[r,c]),cols};
+}
+
+// ============ Colors ============
+const PALETTE=['#ff6b6b','#ffd93d','#6bcB77','#4d96ff','#c780ff','#ff9f45','#4dd6c1','#f48fb1','#a3d977','#9aa0ff'];
+
+// ============ Game state ============
+let mode='daily', N=8, puzzle=null, cellState=[], history=[], timer=0, timerInt=null, running=false, solved=false, practiceN=7;
+const board=document.getElementById('board');
+
+function dayNumber(){ const now=new Date(); const utc=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()); return Math.floor((utc-Date.UTC(2024,0,1))/86400000); }
+function puzzleNo(){ return dayNumber()+1; }
+
+function startTimer(){ if(running||solved)return; running=true; timerInt=setInterval(()=>{timer++;renderMeta();},1000); }
+function stopTimer(){ running=false; clearInterval(timerInt); }
+function fmt(s){ const m=Math.floor(s/60); return m+':'+String(s%60).padStart(2,'0'); }
+
+function newGame(){
+  solved=false; stopTimer(); timer=0; history=[];
+  if(mode==='daily'){
+    N=8;
+    const dn=dayNumber();
+    puzzle=generatePuzzle(1000+dn,N);
+    const done=stats.lastDaily===puzzleNo();
+    document.getElementById('btnNew').style.display='none';
+    document.getElementById('diffSeg').style.display='none';
+    // restore saved progress for today
+    const sp=LS.get('dailyProgress',null);
+    if(sp&&sp.no===puzzleNo()&&sp.n===N){ cellState=sp.state; timer=sp.timer||0; }
+    else cellState=Array.from({length:N},()=>new Array(N).fill(0));
+  }else{
+    N=practiceN;
+    puzzle=generatePuzzle((Math.random()*1e9)|0, N);
+    cellState=Array.from({length:N},()=>new Array(N).fill(0));
+    document.getElementById('btnNew').style.display='block';
+    document.getElementById('diffSeg').style.display='flex';
+  }
+  buildBoard();
+  renderMeta();
+  // if daily already done, show solution + come back
+  if(mode==='daily'&&stats.lastDaily===puzzleNo()){
+    showSolution(); solved=true;
+    renderAll();
+  }
+}
+
+function buildBoard(){
+  board.style.gridTemplateColumns=`repeat(${N},1fr)`;
+  board.style.gridTemplateRows=`repeat(${N},1fr)`;
+  board.innerHTML='';
+  const light=(settings.themeLight!==undefined)?settings.themeLight:(settings.theme==='light');
+  const dark=!light;
+  const bc = dark? 'rgba(0,0,0,.60)' : 'rgba(0,0,0,.45)';
+  const thin = dark? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.10)';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const d=document.createElement('div');
+    d.className='cell'; d.dataset.r=r; d.dataset.c=c;
+    const id=puzzle.reg[r][c];
+    const col=PALETTE[id%PALETTE.length];
+    d.style.background=dark?shade(col,-.18):shade(col,.30);
+    const diff=(rr,cc)=> rr<0||cc<0||rr>=N||cc>=N || puzzle.reg[rr][cc]!==id;
+    d.style.borderTop=(diff(r-1,c)?'3px solid '+bc:'1px solid '+thin);
+    d.style.borderLeft=(diff(r,c-1)?'3px solid '+bc:'1px solid '+thin);
+    d.style.borderRight=(diff(r,c+1)?'3px solid '+bc:'1px solid '+thin);
+    d.style.borderBottom=(diff(r+1,c)?'3px solid '+bc:'1px solid '+thin);
+    d.addEventListener('click',()=>onCell(r,c));
+    board.appendChild(d);
+  }
+  renderAll();
+}
+function shade(hex,p){ // p>0 lighten, p<0 darken
+  const n=parseInt(hex.slice(1),16); let r=n>>16,g=(n>>8)&255,b=n&255;
+  if(p<0){r*= (1+p);g*=(1+p);b*=(1+p);} else {r+=(255-r)*p;g+=(255-g)*p;b+=(255-b)*p;}
+  return `rgb(${r|0},${g|0},${b|0})`;
+}
+
+function onCell(r,c){
+  if(solved) return;
+  actx();
+  if(!running) startTimer();
+  pushHistory();
+  const v=cellState[r][c];
+  const nv=(v+1)%3;
+  cellState[r][c]=nv;
+  if(nv===1){ SFX.star(); vibrate(12); if(settings.autoX) autoMark(r,c); }
+  else if(nv===2){ SFX.mark(); }
+  else { SFX.clear(); }
+  renderAll(); saveDaily(); checkWin();
+}
+function autoMark(r,c){
+  for(let i=0;i<N;i++){ if(cellState[r][i]===0&&i!==c)cellState[r][i]=2; if(cellState[i][c]===0&&i!==r)cellState[i][c]=2; }
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=r+dr,nc=c+dc;
+    if(nr>=0&&nr<N&&nc>=0&&nc<N&&cellState[nr][nc]===0)cellState[nr][nc]=2;}
+}
+function pushHistory(){ history.push(cellState.map(row=>row.slice())); if(history.length>200)history.shift(); }
+function undo(){ if(!history.length||solved)return; cellState=history.pop(); renderAll(); saveDaily(); SFX.clear(); }
+function clearBoard(){ if(solved)return; pushHistory(); cellState=Array.from({length:N},()=>new Array(N).fill(0)); renderAll(); saveDaily(); SFX.clear(); }
+
+function conflicts(){
+  // returns Set of "r,c" star cells in conflict
+  const bad=new Set();
+  const starsByRow={},starsByCol={},starsByReg={},list=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(cellState[r][c]===1){
+    list.push([r,c]);
+    (starsByRow[r]=starsByRow[r]||[]).push([r,c]);
+    (starsByCol[c]=starsByCol[c]||[]).push([r,c]);
+    const id=puzzle.reg[r][c]; (starsByReg[id]=starsByReg[id]||[]).push([r,c]);
+  }
+  function flag(group){for(const k in group)if(group[k].length>1)group[k].forEach(([r,c])=>bad.add(r+','+c));}
+  flag(starsByRow);flag(starsByCol);flag(starsByReg);
+  for(const[r,c]of list)for(const[r2,c2]of list){
+    if((r!==r2||c!==c2)&&Math.abs(r-r2)<=1&&Math.abs(c-c2)<=1){bad.add(r+','+c);bad.add(r2+','+c2);}
+  }
+  return bad;
+}
+
+function renderAll(){
+  const bad=settings.conflicts?conflicts():new Set();
+  const cells=board.children;
+  for(let i=0;i<cells.length;i++){
+    const el=cells[i]; const r=+el.dataset.r,c=+el.dataset.c; const v=cellState[r][c];
+    el.classList.toggle('bad',v===1&&bad.has(r+','+c));
+    if(v===1) el.innerHTML='<span class="star">★</span>';
+    else if(v===2) el.innerHTML='<span class="xx">✕</span>';
+    else el.innerHTML='';
+  }
+}
+function renderMeta(){
+  const ml=document.getElementById('metaLeft'), mr=document.getElementById('metaRight');
+  if(mode==='daily'){ ml.textContent='Astrella #'+puzzleNo()+' · '+N+'×'+N; }
+  else { ml.textContent='Práctica · '+N+'×'+N; }
+  mr.textContent='⏱ '+fmt(timer);
+}
+
+function checkWin(){
+  let count=0;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(cellState[r][c]===1) count++;
+  if(count!==N) return;
+  if(conflicts().size>0) return;
+  // valid: one per row/col/region (counts==N, no conflicts guarantees)
+  // verify one per row & col & region
+  const rows=new Set(),cols=new Set(),regs=new Set();
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(cellState[r][c]===1){rows.add(r);cols.add(c);regs.add(puzzle.reg[r][c]);}
+  if(rows.size!==N||cols.size!==N||regs.size!==N) return;
+  win();
+}
+
+function win(){
+  solved=true; stopTimer(); SFX.win(); vibrate([0,40,40,60]); launchConfetti();
+  if(mode==='daily' && stats.lastDaily!==puzzleNo()){
+    stats.played++; stats.wins++;
+    // streak
+    if(stats.lastDaily===puzzleNo()-1) stats.streak++; else stats.streak=1;
+    if(stats.streak>stats.maxStreak)stats.maxStreak=stats.streak;
+    stats.lastDaily=puzzleNo();
+    stats.dailyTimes.push(timer);
+    if(stats.bestDaily==null||timer<stats.bestDaily)stats.bestDaily=timer;
+    LS.set('stats',stats);
+    LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true});
+  }
+  showWin();
+}
+function showSolution(){
+  cellState=Array.from({length:N},()=>new Array(N).fill(0));
+  for(const[r,c]of puzzle.sol)cellState[r][c]=1;
+}
+
+function showWin(){
+  const isDaily=mode==='daily';
+  document.getElementById('winTitle').textContent= isDaily?'¡Astrella resuelto! ★':'¡Resuelto! ★';
+  document.getElementById('winSub').textContent= isDaily?('Diario #'+puzzleNo()):('Práctica '+N+'×'+N);
+  document.getElementById('winTime').textContent=fmt(timer);
+  document.getElementById('wsStreak').textContent=stats.streak;
+  document.getElementById('wsPlayed').textContent=stats.played;
+  document.getElementById('wsBest').textContent=stats.bestDaily!=null?fmt(stats.bestDaily):'—';
+  document.getElementById('btnShare').style.display=isDaily?'flex':'none';
+  document.getElementById('comeBack').style.display=isDaily?'block':'none';
+  show('winOverlay');
+}
+
+// ============ Share ============
+function shareText(){
+  const stars='★'.repeat(Math.min(stats.streak,10))||'★';
+  return `Astrella #${puzzleNo()} ★\n⏱ ${fmt(timer)}   🔥 racha ${stats.streak}\n¿Puedes batirme? #Astrella`;
+}
+async function doShare(){
+  const txt=shareText();
+  try{
+    if(navigator.share){ await navigator.share({text:txt}); return; }
+  }catch(e){}
+  try{ await navigator.clipboard.writeText(txt); toast('Resultado copiado 📋'); }
+  catch(e){ prompt('Copia tu resultado:',txt); }
+}
+function toast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--panel2);color:var(--text);padding:12px 18px;border-radius:12px;border:1px solid var(--line);z-index:99;box-shadow:var(--shadow);font-weight:600';
+  document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
+}
+
+// ============ Hint ============
+function hint(){
+  if(solved)return;
+  // find a solution star not yet placed; place it
+  pushHistory();
+  for(const[r,c]of puzzle.sol){
+    if(cellState[r][c]!==1){
+      // clear any wrong star in same row/col
+      cellState[r][c]=1; SFX.hint(); vibrate(15);
+      const el=[...board.children].find(e=>+e.dataset.r===r&&+e.dataset.c===c);
+      renderAll(); saveDaily();
+      if(!running) startTimer();
+      checkWin();
+      return;
+    }
+  }
+}
+
+function saveDaily(){
+  if(mode==='daily' && !solved) LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer});
+}
+
+// ============ Confetti ============
+const confCanvas=document.getElementById('confetti'),cctx=confCanvas.getContext('2d');
+let confParts=[],confAnim=null;
+function launchConfetti(){
+  confCanvas.width=innerWidth;confCanvas.height=innerHeight;
+  confParts=[];
+  const cols=['#ffd24a','#7c8cff','#5dff9b','#ff5d7a','#9a6bff','#4dd6c1'];
+  for(let i=0;i<140;i++)confParts.push({x:innerWidth/2,y:innerHeight*0.35,
+    vx:(Math.random()-.5)*14,vy:Math.random()*-12-4,g:.4,
+    s:Math.random()*7+4,c:cols[i%cols.length],rot:Math.random()*6,vr:(Math.random()-.5)*.3,life:1});
+  if(confAnim)cancelAnimationFrame(confAnim);
+  (function tick(){
+    cctx.clearRect(0,0,confCanvas.width,confCanvas.height);
+    let alive=false;
+    for(const p of confParts){
+      p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.life-=.008;
+      if(p.life>0&&p.y<confCanvas.height+20){alive=true;
+        cctx.save();cctx.globalAlpha=Math.max(0,p.life);cctx.translate(p.x,p.y);cctx.rotate(p.rot);
+        cctx.fillStyle=p.c;cctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cctx.restore();}
+    }
+    if(alive)confAnim=requestAnimationFrame(tick);else cctx.clearRect(0,0,confCanvas.width,confCanvas.height);
+  })();
+}
+
+// ============ Tutorial ============
+let tutStep=0;
+const TUTREG=['#ff6b6b','#ffd93d','#6bcB77','#4d96ff','#c780ff'];
+function quadReg(n){const g=[];for(let r=0;r<n;r++){g.push([]);for(let c=0;c<n;c++)g[r].push((r<n/2?0:2)+(c<n/2?0:1));}return g;}
+function miniGrid(n,regs,stars,bad,xs){
+  const g=document.createElement('div'); g.className='mini'; g.style.gridTemplateColumns='repeat('+n+',1fr)';
+  const light=(settings.themeLight!==undefined)?settings.themeLight:false;
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+    const d=document.createElement('div'); d.className='mc';
+    if(regs){const col=TUTREG[regs[r][c]%TUTREG.length]; d.style.background=light?col:shade(col,-.12);}
+    else d.style.background=light?'#dfe4f5':'#262b55';
+    const star=stars&&stars.some(s=>s[0]===r&&s[1]===c);
+    const isbad=bad&&bad.some(s=>s[0]===r&&s[1]===c);
+    const isx=xs&&xs.some(s=>s[0]===r&&s[1]===c);
+    if(star){d.innerHTML='<span class="s">★</span>'; if(isbad)d.classList.add('bad');}
+    else if(isx)d.innerHTML='<span style="opacity:.45;font-size:15px">✕</span>';
+    g.appendChild(d);
+  }
+  return g;
+}
+function el(tag,cls,html){const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;}
+const TUT=[
+  function(st){
+    st.appendChild(el('h2',null,'Astrella ★'));
+    st.appendChild(el('p',null,'Un puzzle de lógica nuevo cada día. Te lo explico en 20 segundos.'));
+    st.appendChild(miniGrid(4,quadReg(4),null,null,null));
+  },
+  function(st){
+    st.appendChild(el('h2',null,'El objetivo'));
+    st.appendChild(el('p',null,'Coloca <b>1 estrella por fila, 1 por columna y 1 por cada región de color</b>.'));
+    st.appendChild(miniGrid(4,quadReg(4),[[0,1],[1,3],[2,0],[3,2]],null,null));
+  },
+  function(st){
+    st.appendChild(el('h2',null,'No se tocan'));
+    st.appendChild(el('p',null,'Dos estrellas <b>nunca pueden tocarse</b>, ni siquiera en diagonal.'));
+    const row=el('div','mini-row');
+    const left=el('div',null); left.appendChild(miniGrid(3,null,[[0,0],[1,1]],[[0,0],[1,1]],null)); left.appendChild(el('div','tag no','✗ Se tocan'));
+    const right=el('div',null); right.appendChild(miniGrid(3,null,[[0,0],[1,2]],null,null)); right.appendChild(el('div','tag ok','✓ Bien'));
+    row.appendChild(left); row.appendChild(right);
+    st.appendChild(row);
+  },
+  function(st){
+    st.appendChild(el('h2',null,'Controles'));
+    st.appendChild(el('p',null,'Toca una casilla para alternar: vacío → ★ → ✕ → vacío. Usa <b>✕</b> para descartar casillas. ¿Atascado? Pulsa <b>💡 Pista</b>.'));
+    const row=el('div','mini-row');
+    row.appendChild(miniGrid(1,null,null,null,null));
+    row.appendChild(miniGrid(1,null,[[0,0]],null,null));
+    row.appendChild(miniGrid(1,null,null,null,[[0,0]]));
+    st.appendChild(row);
+  },
+  function(st){
+    st.appendChild(el('h2',null,'¡A jugar! ★'));
+    st.appendChild(el('p',null,'Resuelve el reto de hoy, mantén tu <b>racha 🔥</b> y comparte tu tiempo con tus amigos.'));
+    st.appendChild(miniGrid(4,quadReg(4),[[0,1],[1,3],[2,0],[3,2]],null,null));
+  }
+];
+function renderTut(){
+  const st=document.getElementById('tutStage'); st.innerHTML='';
+  TUT[tutStep](st);
+  const dots=document.getElementById('tutDots'); dots.innerHTML='';
+  for(let i=0;i<TUT.length;i++) dots.appendChild(el('div','d'+(i===tutStep?' on':'')));
+  document.getElementById('tutNext').textContent=(tutStep===TUT.length-1)?'Jugar ★':'Siguiente';
+  document.getElementById('tutSkip').style.visibility=(tutStep===TUT.length-1)?'hidden':'visible';
+}
+function startTut(){ tutStep=0; renderTut(); show('tutOverlay'); }
+function endTut(){ hide('tutOverlay'); LS.set('tutSeen',true); }
+
+// ============ Modals ============
+function show(id){document.getElementById(id).classList.add('show');}
+function hide(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',e=>e.target.closest('.overlay').classList.remove('show')));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+
+document.getElementById('btnHelp').onclick=()=>startTut();
+document.getElementById('btnStats').onclick=()=>{renderStats();show('statsOverlay');};
+document.getElementById('btnSettings').onclick=()=>show('settingsOverlay');
+document.getElementById('btnWinClose').onclick=()=>hide('winOverlay');
+document.getElementById('btnShare').onclick=doShare;
+document.getElementById('btnUndo').onclick=undo;
+document.getElementById('btnClear').onclick=clearBoard;
+document.getElementById('btnHint').onclick=hint;
+document.getElementById('btnNew').onclick=newGame;
+document.getElementById('tutNext').onclick=()=>{ if(tutStep===TUT.length-1) endTut(); else { tutStep++; renderTut(); } };
+document.getElementById('tutSkip').onclick=endTut;
+
+function renderStats(){
+  document.getElementById('stPlayed').textContent=stats.played;
+  document.getElementById('stWin').textContent=(stats.played?Math.round(stats.wins/stats.played*100):0)+'%';
+  document.getElementById('stStreak').textContent=stats.streak;
+  document.getElementById('stMax').textContent=stats.maxStreak;
+  document.getElementById('stBest').textContent=stats.bestDaily!=null?fmt(stats.bestDaily):'—';
+  const dt=stats.dailyTimes||[];
+  document.getElementById('stAvg').textContent=dt.length?fmt(Math.round(dt.reduce((a,b)=>a+b,0)/dt.length)):'—';
+}
+
+// ============ Tabs & difficulty ============
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); mode=t.dataset.mode; newGame();
+}));
+document.querySelectorAll('#diffSeg .s').forEach(s=>s.addEventListener('click',()=>{
+  document.querySelectorAll('#diffSeg .s').forEach(x=>x.classList.remove('active'));
+  s.classList.add('active'); practiceN=+s.dataset.n; newGame();
+}));
+
+// ============ Settings switches ============
+function bindSwitch(id,key,onChange){
+  const el=document.getElementById(id);
+  el.classList.toggle('on',!!settings[key]);
+  el.addEventListener('click',()=>{settings[key]=!settings[key];el.classList.toggle('on',settings[key]);LS.set('settings',settings);if(onChange)onChange();});
+}
+bindSwitch('swSound','sound'); bindSwitch('swHaptic','haptic'); bindSwitch('swAutoX','autoX');
+bindSwitch('swConflicts','conflicts',()=>renderAll());
+bindSwitch('swTheme','themeLight',()=>{applyTheme();});
+// theme stored separately
+function applyTheme(){
+  const light = settings.themeLight!==undefined ? settings.themeLight : (settings.theme==='light');
+  document.documentElement.setAttribute('data-theme',light?'light':'dark');
+  document.querySelector('meta[name=theme-color]').setAttribute('content',light?'#eef1fb':'#0e1020');
+  if(puzzle) buildBoard();
+}
+// init theme switch state
+(function(){const el=document.getElementById('swTheme');const light=(settings.themeLight!==undefined)?settings.themeLight:(settings.theme==='light');el.classList.toggle('on',light);settings.themeLight=light;})();
+
+// ============ Background stars ============
+const sbg=document.getElementById('stars-bg'),sctx=sbg.getContext('2d');let bgStars=[];
+function initBg(){sbg.width=innerWidth;sbg.height=innerHeight;bgStars=[];
+  const n=Math.floor(innerWidth*innerHeight/9000);
+  for(let i=0;i<n;i++)bgStars.push({x:Math.random()*sbg.width,y:Math.random()*sbg.height,r:Math.random()*1.4+.3,a:Math.random()*.6+.2,t:Math.random()*3});
+}
+function drawBg(){sctx.clearRect(0,0,sbg.width,sbg.height);const now=performance.now()/1000;
+  for(const s of bgStars){const a=s.a*(.6+.4*Math.sin(now*1.5+s.t));sctx.globalAlpha=a;sctx.fillStyle=settings.themeLight?'#8893c8':'#cdd6ff';
+    sctx.beginPath();sctx.arc(s.x,s.y,s.r,0,7);sctx.fill();}
+  sctx.globalAlpha=1;requestAnimationFrame(drawBg);}
+
+// ============ Boot ============
+window.addEventListener('resize',()=>{initBg();});
+applyTheme(); initBg(); drawBg(); newGame();
+if(!LS.get('tutSeen',false)){ startTut(); LS.set('tutSeen',true); }
+
+})();
+</script>
+</body>
+</html>
