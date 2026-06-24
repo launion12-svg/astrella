@@ -245,7 +245,7 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <div class="row"><span>Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
     <div class="row"><span>Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
     <div class="row"><span>Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
-    <p style="margin-top:14px;font-size:12px">Astrella v1.1 · Hecho con ♥ · Sin anuncios · Offline</p>
+    <p style="margin-top:14px;font-size:12px">Astrella v1.2 · Hecho con ♥ · Sin anuncios · Offline</p>
   </div>
 </div>
 
@@ -300,7 +300,30 @@ function checkAchievements(ctx){
     LS.set('ach',ach);
     coins += newly.length*5; LS.set('coins',coins); updateCoins();
     newly.forEach((a,i)=> setTimeout(()=>toast('🏆 Logro: '+a.t+'  (+5 🪙)'), 1300 + i*1500));
+    renderAch();
   }
+}
+function renderAch(){
+  const ag=document.getElementById('achGrid'); if(!ag) return;
+  ag.innerHTML='';
+  for(const a of ACHS){ const un=!!ach[a.id];
+    const d=document.createElement('div'); d.className='achi'+(un?' on':''); d.title=a.d;
+    d.innerHTML='<div class="aic">'+(un?a.ic:'🔒')+'</div><div class="att">'+a.t+'</div>';
+    ag.appendChild(d);
+  }
+}
+function migrateAchievements(){
+  // silently unlock already-earned achievements for existing users (no coins, no toast)
+  let changed=false;
+  const cond={
+    first: stats.wins>0||stats.played>0,
+    streak3: stats.maxStreak>=3, streak7: stats.maxStreak>=7, streak14: stats.maxStreak>=14, streak30: stats.maxStreak>=30,
+    d10: stats.played>=10, d50: stats.played>=50,
+    rich: coins>=100,
+    allsizes: [6,7,8,9].every(s=>stats.practiceSizesSolved.includes(s))
+  };
+  for(const k in cond){ if(cond[k] && !ach[k]){ ach[k]=true; changed=true; } }
+  if(changed) LS.set('ach',ach);
 }
 
 // ============ Audio ============
@@ -449,7 +472,7 @@ function newGame(){
     document.getElementById('diffSeg').style.display='none';
     // restore saved progress for today
     const sp=LS.get('dailyProgress',null);
-    if(sp&&sp.no===puzzleNo()&&sp.n===N){ cellState=sp.state; timer=sp.timer||0; }
+    if(sp&&sp.no===puzzleNo()&&sp.n===N){ cellState=sp.state; timer=sp.timer||0; hintsUsed=sp.hintsUsed||0; }
     else cellState=Array.from({length:N},()=>new Array(N).fill(0));
   }else{
     N=practiceN;
@@ -581,7 +604,7 @@ function win(){
       // record time/best only for clean (no-hint) solves
       if(clean){ stats.dailyTimes.push(timer); if(stats.bestDaily==null||timer<stats.bestDaily)stats.bestDaily=timer; }
       LS.set('stats',stats);
-      LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true});
+      LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,done:true,hintsUsed});
       lastEarned = 10 + (clean?5:0);
     }
   } else {
@@ -660,7 +683,7 @@ function hint(){
 }
 
 function saveDaily(){
-  if(mode==='daily' && !solved) LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer});
+  if(mode==='daily' && !solved) LS.set('dailyProgress',{no:puzzleNo(),n:N,state:cellState,timer,hintsUsed});
 }
 
 // ============ Confetti ============
@@ -789,14 +812,7 @@ function renderStats(){
   document.getElementById('stBest').textContent=stats.bestDaily!=null?fmt(stats.bestDaily):'—';
   const dt=stats.dailyTimes||[];
   document.getElementById('stAvg').textContent=dt.length?fmt(Math.round(dt.reduce((a,b)=>a+b,0)/dt.length)):'—';
-  const ag=document.getElementById('achGrid');
-  if(ag){ ag.innerHTML='';
-    for(const a of ACHS){ const un=!!ach[a.id];
-      const d=document.createElement('div'); d.className='achi'+(un?' on':''); d.title=a.d;
-      d.innerHTML='<div class="aic">'+(un?a.ic:'🔒')+'</div><div class="att">'+a.t+'</div>';
-      ag.appendChild(d);
-    }
-  }
+  renderAch();
 }
 
 // ============ Tabs & difficulty ============
@@ -851,7 +867,7 @@ function dailyBonus(){
 
 // ============ Boot ============
 window.addEventListener('resize',()=>{initBg();});
-applyTheme(); initBg(); drawBg(); newGame(); updateCoins(); dailyBonus();
+applyTheme(); initBg(); drawBg(); migrateAchievements(); newGame(); updateCoins(); dailyBonus();
 if(!LS.get('tutSeen',false)){ startTut(); LS.set('tutSeen',true); }
 
 })();
