@@ -254,11 +254,6 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <div class="row"><span data-i18n="set_haptic">Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
     <div class="row"><span data-i18n="set_autox">Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
     <div class="row"><span data-i18n="set_conflicts">Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
-    <div class="row" style="border-bottom:none;padding-bottom:4px"><span data-i18n="set_backup">Copia de tu progreso</span></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn" id="btnExport" data-i18n="btn_export" style="flex:1">📤 Exportar</button>
-      <button class="btn" id="btnImport" data-i18n="btn_import" style="flex:1">📥 Importar</button>
-    </div>
     <p data-i18n="version" style="margin-top:14px;font-size:12px">Astrella v1.7 · Hecho con ♥ · Sin anuncios · Offline</p>
   </div>
 </div>
@@ -861,27 +856,6 @@ document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',(
   if(document.getElementById('tutOverlay').classList.contains('show')) renderTut();
 }));
 setActiveLang();
-
-// ============ Backup code (export / import) ============
-function exportProgress(){
-  const data={};
-  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.indexOf('astrella_')===0) data[k]=localStorage.getItem(k); }
-  const code='ASTRELLA1:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-  if(navigator.clipboard){ navigator.clipboard.writeText(code).then(()=>toast(t('export_copied')),()=>{}); }
-  prompt(t('export_prompt'), code);
-}
-function importProgress(){
-  const code=prompt(t('import_prompt'),''); if(!code) return;
-  try{
-    const raw=code.trim().replace(/^ASTRELLA1:/,'');
-    const data=JSON.parse(decodeURIComponent(escape(atob(raw))));
-    if(!data||typeof data!=='object') throw 0;
-    Object.keys(data).forEach(k=>{ if(k.indexOf('astrella_')===0) localStorage.setItem(k,data[k]); });
-    toast(t('import_ok')); setTimeout(()=>location.reload(),1000);
-  }catch(e){ toast(t('import_err')); }
-}
-document.getElementById('btnExport').onclick=exportProgress;
-document.getElementById('btnImport').onclick=importProgress;
 
 // ============ Settings switches ============
 function bindSwitch(id,key,onChange){
