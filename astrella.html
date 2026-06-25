@@ -141,41 +141,41 @@
 <header>
   <div class="logo"><span class="mark">★</span>Astrella</div>
   <div class="hbtns">
-    <div class="coins" id="coinPill" title="Monedas"><span class="ic">🪙</span><span id="coinVal">0</span></div>
-    <button class="iconbtn" id="btnHelp" title="Cómo jugar" aria-label="Cómo jugar">?</button>
-    <button class="iconbtn" id="btnStats" title="Estadísticas" aria-label="Estadísticas">📊</button>
-    <button class="iconbtn" id="btnSettings" title="Ajustes" aria-label="Ajustes">⚙</button>
+    <div class="coins" id="coinPill" data-i18n-title="t_coins" title="Monedas"><span class="ic">🪙</span><span id="coinVal">0</span></div>
+    <button class="iconbtn" id="btnHelp" data-i18n-title="t_help" title="Cómo jugar">?</button>
+    <button class="iconbtn" id="btnStats" data-i18n-title="t_stats" title="Estadísticas">📊</button>
+    <button class="iconbtn" id="btnSettings" data-i18n-title="t_settings" title="Ajustes">⚙</button>
   </div>
 </header>
 
 <div class="tabs">
-  <div class="tab active" data-mode="daily">★ Diario</div>
-  <div class="tab" data-mode="practice">∞ Práctica</div>
+  <div class="tab active" data-mode="daily" data-i18n="tab_daily">★ Diario</div>
+  <div class="tab" data-mode="practice" data-i18n="tab_practice">∞ Práctica</div>
 </div>
 
 <div class="meta">
-  <span id="metaLeft" class="chip">Cargando…</span>
+  <span id="metaLeft" class="chip" data-i18n="loading">Cargando…</span>
   <span id="metaRight" class="chip">⏱ 0:00</span>
 </div>
 
 <div class="seg" id="diffSeg" style="display:none">
-  <div class="s" data-n="6">6×6 Fácil</div>
-  <div class="s active" data-n="7">7×7 Medio</div>
-  <div class="s" data-n="8">8×8 Difícil</div>
-  <div class="s" data-n="9">9×9 Experto</div>
+  <div class="s" data-n="6" data-i18n="diff_easy">6×6 Fácil</div>
+  <div class="s active" data-n="7" data-i18n="diff_medium">7×7 Medio</div>
+  <div class="s" data-n="8" data-i18n="diff_hard">8×8 Difícil</div>
+  <div class="s" data-n="9" data-i18n="diff_expert">9×9 Experto</div>
 </div>
 
 <div id="boardWrap"><div id="board"></div></div>
 
 <div class="controls" id="controls">
-  <button class="btn" id="btnUndo">↶ Deshacer</button>
-  <button class="btn" id="btnClear">⨉ Limpiar</button>
-  <button class="btn" id="btnHint">💡 Pista 5🪙</button>
+  <button class="btn" id="btnUndo" data-i18n="btn_undo">↶ Deshacer</button>
+  <button class="btn" id="btnClear" data-i18n="btn_clear">⨉ Limpiar</button>
+  <button class="btn" id="btnHint" data-i18n="btn_hint">💡 Pista 5🪙</button>
 </div>
-<button class="btn primary" id="btnNew" style="display:none;max-width:520px;width:100%;margin-top:8px">↻ Nuevo puzzle</button>
-<button class="btn primary" id="btnResult" style="display:none;max-width:520px;width:100%;margin-top:8px">📤 Ver mi resultado</button>
+<button class="btn primary" id="btnNew" data-i18n="btn_new" style="display:none;max-width:520px;width:100%;margin-top:8px">↻ Nuevo puzzle</button>
+<button class="btn primary" id="btnResult" data-i18n="btn_result" style="display:none;max-width:520px;width:100%;margin-top:8px">📤 Ver mi resultado</button>
 
-<div class="hint">Toca una celda para poner ★. Otra vez para marcar ✕. Otra para borrar.<br>
+<div class="hint" data-i18n="hint_text">Toca una celda para poner ★. Otra vez para marcar ✕. Otra para borrar.<br>
 Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <b>no pueden tocarse</b> (ni en diagonal).</div>
 
 <!-- WIN MODAL -->
@@ -185,14 +185,14 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <p id="winSub">Astrella diario</p>
     <div class="wintime" id="winTime">0:00</div>
     <div class="statgrid" id="winStatGrid" style="grid-template-columns:repeat(3,1fr)">
-      <div class="stat" id="wsStreakBox"><div class="n" id="wsStreak">0</div><div class="l">Racha 🔥</div></div>
-      <div class="stat" id="wsPlayedBox"><div class="n" id="wsPlayed">0</div><div class="l">Jugados</div></div>
-      <div class="stat"><div class="n" id="wsBest">—</div><div class="l">Mejor⏱</div></div>
+      <div class="stat" id="wsStreakBox"><div class="n" id="wsStreak">0</div><div class="l" data-i18n="lbl_streak">Racha 🔥</div></div>
+      <div class="stat" id="wsPlayedBox"><div class="n" id="wsPlayed">0</div><div class="l" data-i18n="lbl_played">Jugados</div></div>
+      <div class="stat"><div class="n" id="wsBest">—</div><div class="l" data-i18n="lbl_best">Mejor⏱</div></div>
     </div>
     <div id="winCoins" style="margin:4px 0 8px;font-weight:800;color:var(--accent);font-size:15px"></div>
-    <button class="btn primary" id="btnShare" style="margin-top:6px">📤 Compartir resultado</button>
-    <button class="btn" id="btnWinClose" style="margin-top:8px">Cerrar</button>
-    <p id="comeBack" style="margin-top:12px;display:none">Vuelve mañana para el próximo Astrella ★</p>
+    <button class="btn primary" id="btnShare" data-i18n="win_share" style="margin-top:6px">📤 Compartir resultado</button>
+    <button class="btn" id="btnWinClose" data-i18n="win_close" style="margin-top:8px">Cerrar</button>
+    <p id="comeBack" data-i18n="come_back" style="margin-top:12px;display:none">Vuelve mañana para el próximo Astrella ★</p>
   </div>
 </div>
 
@@ -200,19 +200,19 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
 <div class="overlay" id="statsOverlay">
   <div class="modal">
     <button class="close" data-close>✕</button>
-    <h2>Estadísticas</h2>
+    <h2 data-i18n="stats_title">Estadísticas</h2>
     <div class="statgrid">
-      <div class="stat"><div class="n" id="stPlayed">0</div><div class="l">Jugados</div></div>
-      <div class="stat"><div class="n" id="stWin">0%</div><div class="l">% Éxito</div></div>
-      <div class="stat"><div class="n" id="stStreak">0</div><div class="l">Racha</div></div>
-      <div class="stat"><div class="n" id="stMax">0</div><div class="l">Máx racha</div></div>
+      <div class="stat"><div class="n" id="stPlayed">0</div><div class="l" data-i18n="lbl_played">Jugados</div></div>
+      <div class="stat"><div class="n" id="stWin">0%</div><div class="l" data-i18n="lbl_winpct">% Éxito</div></div>
+      <div class="stat"><div class="n" id="stStreak">0</div><div class="l" data-i18n="lbl_streak2">Racha</div></div>
+      <div class="stat"><div class="n" id="stMax">0</div><div class="l" data-i18n="lbl_maxstreak">Máx racha</div></div>
     </div>
-    <h3>Tiempo</h3>
+    <h3 data-i18n="h_time">Tiempo</h3>
     <div class="statgrid" style="grid-template-columns:repeat(2,1fr)">
-      <div class="stat"><div class="n" id="stBest">—</div><div class="l">Mejor diario</div></div>
-      <div class="stat"><div class="n" id="stAvg">—</div><div class="l">Media diario</div></div>
+      <div class="stat"><div class="n" id="stBest">—</div><div class="l" data-i18n="lbl_bestdaily">Mejor diario</div></div>
+      <div class="stat"><div class="n" id="stAvg">—</div><div class="l" data-i18n="lbl_avgdaily">Media diario</div></div>
     </div>
-    <h3>Logros</h3>
+    <h3 data-i18n="h_ach">Logros</h3>
     <div id="achGrid" class="achgrid"></div>
   </div>
 </div>
@@ -242,13 +242,19 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
 <div class="overlay" id="settingsOverlay">
   <div class="modal">
     <button class="close" data-close>✕</button>
-    <h2>Ajustes</h2>
-    <div class="row"><span>Tema claro</span><div class="switch" id="swTheme"><div class="k"></div></div></div>
-    <div class="row"><span>Sonido</span><div class="switch on" id="swSound"><div class="k"></div></div></div>
-    <div class="row"><span>Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
-    <div class="row"><span>Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
-    <div class="row"><span>Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
-    <p style="margin-top:14px;font-size:12px">Astrella v1.5 · Hecho con ♥ · Sin anuncios · Offline</p>
+    <h2 data-i18n="settings_title">Ajustes</h2>
+    <div class="row"><span data-i18n="set_lang">Idioma / Language</span>
+      <div class="seg" style="width:auto;margin:0;gap:5px;flex:none">
+        <div class="s" id="langEs" data-lang="es" style="padding:6px 14px;flex:none">ES</div>
+        <div class="s" id="langEn" data-lang="en" style="padding:6px 14px;flex:none">EN</div>
+      </div>
+    </div>
+    <div class="row"><span data-i18n="set_theme">Tema claro</span><div class="switch" id="swTheme"><div class="k"></div></div></div>
+    <div class="row"><span data-i18n="set_sound">Sonido</span><div class="switch on" id="swSound"><div class="k"></div></div></div>
+    <div class="row"><span data-i18n="set_haptic">Vibración</span><div class="switch on" id="swHaptic"><div class="k"></div></div></div>
+    <div class="row"><span data-i18n="set_autox">Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
+    <div class="row"><span data-i18n="set_conflicts">Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
+    <p data-i18n="version" style="margin-top:14px;font-size:12px">Astrella v1.6 · Hecho con ♥ · Sin anuncios · Offline</p>
   </div>
 </div>
 
@@ -258,7 +264,7 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <div class="tut-stage" id="tutStage"></div>
     <div class="tut-dots" id="tutDots"></div>
     <div class="tut-nav">
-      <button class="btn" id="tutSkip">Saltar</button>
+      <button class="btn" id="tutSkip" data-i18n="tut_skip">Saltar</button>
       <button class="btn primary" id="tutNext">Siguiente</button>
     </div>
   </div>
@@ -281,6 +287,19 @@ delete settings.theme; LS.set('settings',settings);
 let stats = LS.get('stats',{played:0,wins:0,streak:0,maxStreak:0,lastDaily:null,times:[],dailyTimes:[],bestDaily:null,bestPractice:{}});
 if(!stats.bestPractice) stats.bestPractice={};
 if(!stats.practiceSizesSolved) stats.practiceSizesSolved=[];
+
+// ============ i18n ============
+const T={
+ es:{loading:"Cargando…",tab_daily:"★ Diario",tab_practice:"∞ Práctica",diff_easy:"6×6 Fácil",diff_medium:"7×7 Medio",diff_hard:"8×8 Difícil",diff_expert:"9×9 Experto",btn_undo:"↶ Deshacer",btn_clear:"⨉ Limpiar",btn_hint:"💡 Pista 5🪙",btn_new:"↻ Nuevo puzzle",btn_result:"📤 Ver mi resultado",hint_text:"Toca una celda para poner ★. Otra vez para marcar ✕. Otra para borrar.<br>Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <b>no pueden tocarse</b> (ni en diagonal).",win_share:"📤 Compartir resultado",win_close:"Cerrar",come_back:"Vuelve mañana para el próximo Astrella ★",lbl_streak:"Racha 🔥",lbl_played:"Jugados",lbl_best:"Mejor⏱",stats_title:"Estadísticas",lbl_winpct:"% Éxito",lbl_streak2:"Racha",lbl_maxstreak:"Máx racha",h_time:"Tiempo",lbl_bestdaily:"Mejor diario",lbl_avgdaily:"Media diario",h_ach:"Logros",settings_title:"Ajustes",set_theme:"Tema claro",set_sound:"Sonido",set_haptic:"Vibración",set_autox:"Auto-marcar ✕ alrededor",set_conflicts:"Resaltar conflictos",set_lang:"Idioma / Language",version:"Astrella v1.6 · Hecho con ♥ · Sin anuncios · Offline",tut_skip:"Saltar",tut_next:"Siguiente",tut_play:"Jugar ★",t_help:"Cómo jugar",t_stats:"Estadísticas",t_settings:"Ajustes",t_coins:"Monedas",daily:"Diario",practice:"Práctica",win_daily_t:"¡Astrella resuelto! ★",win_t:"¡Resuelto! ★",hints_one:"pista",hints_many:"pistas",you_have:"Tienes",no_coins:"Sin monedas 🪙 — gánalas en modo Práctica o vuelve mañana",fixed_hint:"Pista fija ⭐",copied:"Resultado copiado 📋",shared:"¡Compartido! 📤",copy_prompt:"Copia tu resultado:",daily_bonus:"+5 🪙 ¡Bonus diario!",ach_unlocked:"🏆 Logro:",share_text:"Astrella #{n} ★\n⏱ {t}   🔥 racha {s}\n¿Puedes batirme? #Astrella",tut1_t:"Astrella ★",tut1_p:"Un puzzle de lógica nuevo cada día. Te lo explico en 20 segundos.",tut2_t:"El objetivo",tut2_p:"Coloca <b>1 estrella por fila, 1 por columna y 1 por cada región de color</b>.",tut3_t:"No se tocan",tut3_p:"Dos estrellas <b>nunca pueden tocarse</b>, ni siquiera en diagonal.",tut3_bad:"✗ Se tocan",tut3_ok:"✓ Bien",tut4_t:"Controles",tut4_p:"Toca una casilla: vacío → ★ → ✕ → vacío. Usa <b>✕</b> para descartar. ¿Atascado? Una <b>💡 Pista</b> cuesta monedas 🪙 que ganas al resolver puzzles (y con el bonus diario).",tut5_t:"¡A jugar! ★",tut5_p:"Resuelve el reto de hoy, mantén tu <b>racha 🔥</b> y comparte tu tiempo con tus amigos.",ach_first:"Primer destello",ach_first_d:"Resuelve tu primer puzzle",ach_nohint:"Mente limpia",ach_nohint_d:"Resuelve el diario sin pistas",ach_speed:"Rayo",ach_speed_d:"Resuelve en menos de 1:00 sin pistas",ach_expert:"Experto",ach_expert_d:"Resuelve un tablero 9×9",ach_streak3:"En racha",ach_streak3_d:"Racha de 3 días",ach_streak7:"Semana estelar",ach_streak7_d:"Racha de 7 días",ach_streak14:"Constelación",ach_streak14_d:"Racha de 14 días",ach_streak30:"Galaxia",ach_streak30_d:"Racha de 30 días",ach_d10:"Habitual",ach_d10_d:"Completa 10 diarios",ach_d50:"Veterano",ach_d50_d:"Completa 50 diarios",ach_rich:"Cazamonedas",ach_rich_d:"Acumula 100 monedas",ach_allsizes:"Todoterreno",ach_allsizes_d:"Resuelve en práctica los 4 tamaños"},
+ en:{loading:"Loading…",tab_daily:"★ Daily",tab_practice:"∞ Practice",diff_easy:"6×6 Easy",diff_medium:"7×7 Medium",diff_hard:"8×8 Hard",diff_expert:"9×9 Expert",btn_undo:"↶ Undo",btn_clear:"⨉ Clear",btn_hint:"💡 Hint 5🪙",btn_new:"↻ New puzzle",btn_result:"📤 View my result",hint_text:"Tap a cell for ★. Tap again to mark ✕. Again to clear.<br>Place <b>one star per row, column and colour region</b>. Stars <b>can't touch</b> (not even diagonally).",win_share:"📤 Share result",win_close:"Close",come_back:"Come back tomorrow for the next Astrella ★",lbl_streak:"Streak 🔥",lbl_played:"Played",lbl_best:"Best⏱",stats_title:"Statistics",lbl_winpct:"Win %",lbl_streak2:"Streak",lbl_maxstreak:"Max streak",h_time:"Time",lbl_bestdaily:"Best daily",lbl_avgdaily:"Avg daily",h_ach:"Achievements",settings_title:"Settings",set_theme:"Light theme",set_sound:"Sound",set_haptic:"Vibration",set_autox:"Auto-mark ✕ around",set_conflicts:"Highlight conflicts",set_lang:"Idioma / Language",version:"Astrella v1.6 · Made with ♥ · No ads · Offline",tut_skip:"Skip",tut_next:"Next",tut_play:"Play ★",t_help:"How to play",t_stats:"Statistics",t_settings:"Settings",t_coins:"Coins",daily:"Daily",practice:"Practice",win_daily_t:"Astrella solved! ★",win_t:"Solved! ★",hints_one:"hint",hints_many:"hints",you_have:"You have",no_coins:"Out of coins 🪙 — earn them in Practice or come back tomorrow",fixed_hint:"Fixed hint ⭐",copied:"Result copied 📋",shared:"Shared! 📤",copy_prompt:"Copy your result:",daily_bonus:"+5 🪙 Daily bonus!",ach_unlocked:"🏆 Achievement:",share_text:"Astrella #{n} ★\n⏱ {t}   🔥 streak {s}\nCan you beat me? #Astrella",tut1_t:"Astrella ★",tut1_p:"A new logic puzzle every day. Here's how in 20 seconds.",tut2_t:"The goal",tut2_p:"Place <b>1 star per row, 1 per column and 1 per colour region</b>.",tut3_t:"No touching",tut3_p:"Two stars <b>can never touch</b>, not even diagonally.",tut3_bad:"✗ Touching",tut3_ok:"✓ OK",tut4_t:"Controls",tut4_p:"Tap a cell: empty → ★ → ✕ → empty. Use <b>✕</b> to rule out cells. Stuck? A <b>💡 Hint</b> costs coins 🪙 you earn by solving puzzles (and from the daily bonus).",tut5_t:"Let's play! ★",tut5_p:"Solve today's challenge, keep your <b>streak 🔥</b> and share your time with friends.",ach_first:"First spark",ach_first_d:"Solve your first puzzle",ach_nohint:"Clear mind",ach_nohint_d:"Solve the daily with no hints",ach_speed:"Lightning",ach_speed_d:"Solve in under 1:00 with no hints",ach_expert:"Expert",ach_expert_d:"Solve a 9×9 board",ach_streak3:"On a roll",ach_streak3_d:"3-day streak",ach_streak7:"Stellar week",ach_streak7_d:"7-day streak",ach_streak14:"Constellation",ach_streak14_d:"14-day streak",ach_streak30:"Galaxy",ach_streak30_d:"30-day streak",ach_d10:"Regular",ach_d10_d:"Complete 10 dailies",ach_d50:"Veteran",ach_d50_d:"Complete 50 dailies",ach_rich:"Coin hunter",ach_rich_d:"Save up 100 coins",ach_allsizes:"All-rounder",ach_allsizes_d:"Solve all 4 sizes in practice"}
+};
+let lang = LS.get('lang',null) || ((navigator.language||'en').toLowerCase().indexOf('es')===0?'es':'en');
+function t(k){ const d=T[lang]||T.en; return (d[k]!==undefined)?d[k]:(T.en[k]!==undefined?T.en[k]:k); }
+function applyI18n(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{ e.innerHTML=t(e.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-title]').forEach(e=>{ e.title=t(e.dataset.i18nTitle); e.setAttribute('aria-label',t(e.dataset.i18nTitle)); });
+}
 let ach = LS.get('ach',{});
 const ACHS=[
   {id:'first', ic:'⭐', t:'Primer destello', d:'Resuelve tu primer puzzle', chk:()=>true},
@@ -302,7 +321,7 @@ function checkAchievements(ctx){
   if(newly.length){
     LS.set('ach',ach);
     coins += newly.length*5; LS.set('coins',coins); updateCoins();
-    newly.forEach((a,i)=> setTimeout(()=>toast('🏆 Logro: '+a.t+'  (+5 🪙)'), 1300 + i*1500));
+    newly.forEach((a,i)=> setTimeout(()=>toast(t('ach_unlocked')+' '+t('ach_'+a.id)+'  (+5 🪙)'), 1300 + i*1500));
     renderAch();
   }
 }
@@ -310,8 +329,8 @@ function renderAch(){
   const ag=document.getElementById('achGrid'); if(!ag) return;
   ag.innerHTML='';
   for(const a of ACHS){ const un=!!ach[a.id];
-    const d=document.createElement('div'); d.className='achi'+(un?' on':''); d.title=a.d;
-    d.innerHTML='<div class="aic">'+(un?a.ic:'🔒')+'</div><div class="att">'+a.t+'</div>';
+    const d=document.createElement('div'); d.className='achi'+(un?' on':''); d.title=t('ach_'+a.id+'_d');
+    d.innerHTML='<div class="aic">'+(un?a.ic:'🔒')+'</div><div class="att">'+t('ach_'+a.id)+'</div>';
     ag.appendChild(d);
   }
 }
@@ -525,7 +544,7 @@ function shade(hex,p){ // p>0 lighten, p<0 darken
 
 function onCell(r,c){
   if(solved) return;
-  if(hintCells.has(r+','+c)){ toast('Pista fija ⭐'); vibrate(8); return; }
+  if(hintCells.has(r+','+c)){ toast(t('fixed_hint')); vibrate(8); return; }
   actx();
   if(!running) startTimer();
   pushHistory();
@@ -579,7 +598,7 @@ function renderAll(){
 function renderMeta(){
   const ml=document.getElementById('metaLeft'), mr=document.getElementById('metaRight');
   if(mode==='daily'){ ml.textContent='Astrella #'+puzzleNo()+' · '+N+'×'+N; }
-  else { ml.textContent='Práctica · '+N+'×'+N; }
+  else { ml.textContent=t('practice')+' · '+N+'×'+N; }
   mr.textContent='⏱ '+fmt(timer);
 }
 
@@ -631,9 +650,9 @@ function showSolution(){
 
 function showWin(){
   const isDaily=mode==='daily';
-  document.getElementById('winTitle').textContent= isDaily?'¡Astrella resuelto! ★':'¡Resuelto! ★';
-  let sub = isDaily?('Diario #'+puzzleNo()):('Práctica '+N+'×'+N);
-  if(hintsUsed>0) sub += ' · '+hintsUsed+(hintsUsed===1?' pista':' pistas');
+  document.getElementById('winTitle').textContent= isDaily?t('win_daily_t'):t('win_t');
+  let sub = isDaily?(t('daily')+' #'+puzzleNo()):(t('practice')+' '+N+'×'+N);
+  if(hintsUsed>0) sub += ' · '+hintsUsed+' '+(hintsUsed===1?t('hints_one'):t('hints_many'));
   document.getElementById('winSub').textContent=sub;
   document.getElementById('winTime').textContent=fmt(timer)+(hintsUsed>0?' *':'');
   document.getElementById('wsStreak').textContent=stats.streak;
@@ -645,22 +664,21 @@ function showWin(){
   document.getElementById('winStatGrid').style.gridTemplateColumns=isDaily?'repeat(3,1fr)':'repeat(1,1fr)';
   document.getElementById('btnShare').style.display=isDaily?'flex':'none';
   document.getElementById('comeBack').style.display=isDaily?'block':'none';
-  document.getElementById('winCoins').textContent=(lastEarned>0?('+'+lastEarned+' 🪙   ·   '):'')+'Tienes '+coins+' 🪙';
+  document.getElementById('winCoins').textContent=(lastEarned>0?('+'+lastEarned+' 🪙   ·   '):'')+t('you_have')+' '+coins+' 🪙';
   show('winOverlay');
 }
 
 // ============ Share ============
 function shareText(){
-  const stars='★'.repeat(Math.min(stats.streak,10))||'★';
-  return `Astrella #${puzzleNo()} ★\n⏱ ${fmt(timer)}   🔥 racha ${stats.streak}\n¿Puedes batirme? #Astrella`;
+  return t('share_text').replace('{n}',puzzleNo()).replace('{t}',fmt(timer)).replace('{s}',stats.streak);
 }
 async function doShare(){
   const txt=shareText();
   try{
-    if(navigator.share){ await navigator.share({text:txt}); toast('¡Compartido! 📤'); return; }
+    if(navigator.share){ await navigator.share({text:txt}); toast(t('shared')); return; }
   }catch(e){}
-  try{ await navigator.clipboard.writeText(txt); toast('Resultado copiado 📋'); }
-  catch(e){ prompt('Copia tu resultado:',txt); }
+  try{ await navigator.clipboard.writeText(txt); toast(t('copied')); }
+  catch(e){ prompt(t('copy_prompt'),txt); }
 }
 function toast(msg){
   const t=document.createElement('div');
@@ -673,7 +691,7 @@ function toast(msg){
 function hint(){
   if(solved)return;
   if(coins < HINT_COST){
-    toast('Sin monedas 🪙 — gánalas en modo Práctica o vuelve mañana');
+    toast(t('no_coins'));
     SFX.err(); return;
   }
   // find a solution star not yet placed
@@ -739,27 +757,27 @@ function miniGrid(n,regs,stars,bad,xs){
 function el(tag,cls,html){const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;}
 const TUT=[
   function(st){
-    st.appendChild(el('h2',null,'Astrella ★'));
-    st.appendChild(el('p',null,'Un puzzle de lógica nuevo cada día. Te lo explico en 20 segundos.'));
+    st.appendChild(el('h2',null,t('tut1_t')));
+    st.appendChild(el('p',null,t('tut1_p')));
     st.appendChild(miniGrid(4,quadReg(4),null,null,null));
   },
   function(st){
-    st.appendChild(el('h2',null,'El objetivo'));
-    st.appendChild(el('p',null,'Coloca <b>1 estrella por fila, 1 por columna y 1 por cada región de color</b>.'));
+    st.appendChild(el('h2',null,t('tut2_t')));
+    st.appendChild(el('p',null,t('tut2_p')));
     st.appendChild(miniGrid(4,quadReg(4),[[0,1],[1,3],[2,0],[3,2]],null,null));
   },
   function(st){
-    st.appendChild(el('h2',null,'No se tocan'));
-    st.appendChild(el('p',null,'Dos estrellas <b>nunca pueden tocarse</b>, ni siquiera en diagonal.'));
+    st.appendChild(el('h2',null,t('tut3_t')));
+    st.appendChild(el('p',null,t('tut3_p')));
     const row=el('div','mini-row');
-    const left=el('div',null); left.appendChild(miniGrid(3,null,[[0,0],[1,1]],[[0,0],[1,1]],null)); left.appendChild(el('div','tag no','✗ Se tocan'));
-    const right=el('div',null); right.appendChild(miniGrid(3,null,[[0,0],[1,2]],null,null)); right.appendChild(el('div','tag ok','✓ Bien'));
+    const left=el('div',null); left.appendChild(miniGrid(3,null,[[0,0],[1,1]],[[0,0],[1,1]],null)); left.appendChild(el('div','tag no',t('tut3_bad')));
+    const right=el('div',null); right.appendChild(miniGrid(3,null,[[0,0],[1,2]],null,null)); right.appendChild(el('div','tag ok',t('tut3_ok')));
     row.appendChild(left); row.appendChild(right);
     st.appendChild(row);
   },
   function(st){
-    st.appendChild(el('h2',null,'Controles'));
-    st.appendChild(el('p',null,'Toca una casilla: vacío → ★ → ✕ → vacío. Usa <b>✕</b> para descartar. ¿Atascado? Una <b>💡 Pista</b> cuesta monedas 🪙 que ganas al resolver puzzles (y con el bonus diario).'));
+    st.appendChild(el('h2',null,t('tut4_t')));
+    st.appendChild(el('p',null,t('tut4_p')));
     const row=el('div','mini-row');
     row.appendChild(miniGrid(1,null,null,null,null));
     row.appendChild(miniGrid(1,null,[[0,0]],null,null));
@@ -767,8 +785,8 @@ const TUT=[
     st.appendChild(row);
   },
   function(st){
-    st.appendChild(el('h2',null,'¡A jugar! ★'));
-    st.appendChild(el('p',null,'Resuelve el reto de hoy, mantén tu <b>racha 🔥</b> y comparte tu tiempo con tus amigos.'));
+    st.appendChild(el('h2',null,t('tut5_t')));
+    st.appendChild(el('p',null,t('tut5_p')));
     st.appendChild(miniGrid(4,quadReg(4),[[0,1],[1,3],[2,0],[3,2]],null,null));
   }
 ];
@@ -777,7 +795,7 @@ function renderTut(){
   TUT[tutStep](st);
   const dots=document.getElementById('tutDots'); dots.innerHTML='';
   for(let i=0;i<TUT.length;i++) dots.appendChild(el('div','d'+(i===tutStep?' on':'')));
-  document.getElementById('tutNext').textContent=(tutStep===TUT.length-1)?'Jugar ★':'Siguiente';
+  document.getElementById('tutNext').textContent=(tutStep===TUT.length-1)?t('tut_play'):t('tut_next');
   document.getElementById('tutSkip').style.visibility=(tutStep===TUT.length-1)?'hidden':'visible';
 }
 function startTut(){ tutStep=0; renderTut(); show('tutOverlay'); }
@@ -831,6 +849,14 @@ document.querySelectorAll('#diffSeg .s').forEach(s=>s.addEventListener('click',(
   s.classList.add('active'); practiceN=+s.dataset.n; newGame();
 }));
 
+// ============ Language ============
+function setActiveLang(){ const e=document.getElementById('langEs'),n=document.getElementById('langEn'); if(e)e.classList.toggle('active',lang==='es'); if(n)n.classList.toggle('active',lang==='en'); }
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{
+  lang=b.dataset.lang; LS.set('lang',lang); applyI18n(); setActiveLang(); renderMeta();
+  if(document.getElementById('tutOverlay').classList.contains('show')) renderTut();
+}));
+setActiveLang();
+
 // ============ Settings switches ============
 function bindSwitch(id,key,onChange){
   const el=document.getElementById(id);
@@ -867,13 +893,13 @@ function dailyBonus(){
   const today=puzzleNo(); const last=LS.get('lastBonus',-1);
   if(last!==today){
     coins+=5; LS.set('coins',coins); LS.set('lastBonus',today); updateCoins();
-    setTimeout(()=>toast('+5 🪙 ¡Bonus diario!'),900);
+    setTimeout(()=>toast(t('daily_bonus')),900);
   }
 }
 
 // ============ Boot ============
 window.addEventListener('resize',()=>{initBg();});
-applyTheme(); initBg(); drawBg(); migrateAchievements(); newGame(); updateCoins(); dailyBonus();
+applyTheme(); applyI18n(); initBg(); drawBg(); migrateAchievements(); newGame(); updateCoins(); dailyBonus();
 if(!LS.get('tutSeen',false)){ startTut(); LS.set('tutSeen',true); }
 
 })();
