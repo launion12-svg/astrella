@@ -63,10 +63,10 @@
     animation:pop .22s cubic-bezier(.2,1.6,.4,1);}
   .cell .xx{color:rgba(0,0,0,.42);font-size:18px;font-weight:700;}
   [data-theme="dark"] .cell .xx{color:rgba(0,0,0,.5);}
-  .cell.bad .star{color:var(--bad);text-shadow:0 0 10px rgba(255,93,122,.8);}
+  .cell.bad .star{color:var(--bad)!important;-webkit-text-fill-color:var(--bad)!important;text-shadow:0 0 10px rgba(255,93,122,.8);}
   .cell.hintstar .star{color:var(--accent);text-shadow:0 0 9px rgba(255,210,74,.85);}
   .cell.hintstar{box-shadow:inset 0 0 0 2px var(--accent);}
-  .cell.bad{box-shadow:inset 0 0 0 3px var(--bad);}
+  .cell.bad{outline:3px solid var(--bad);outline-offset:-3px;position:relative;z-index:3;}
   .star.sk-neon{color:#19d3d3;text-shadow:0 0 8px rgba(25,211,211,.85);}
   .star.sk-rosa{color:#ff5db1;text-shadow:0 0 8px rgba(255,93,177,.8);}
   .star.sk-esme{color:#33d97f;text-shadow:0 0 8px rgba(51,217,127,.8);}
@@ -124,6 +124,10 @@
   .shopitem .act.buy{color:var(--accent);border-color:var(--accent);}
   .shopitem .act.equip{background:var(--accent2);color:#fff;border:none;}
   .shopitem .act.owned{opacity:.55;cursor:default;}
+  .genov{position:fixed;inset:0;background:rgba(5,7,20,.78);backdrop-filter:blur(3px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:60;color:var(--text);font-weight:700;}
+  .genov.show{display:flex;}
+  .genov .spin{width:48px;height:48px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--accent);animation:spin360 .8s linear infinite;}
+  @keyframes spin360{to{transform:rotate(360deg);}}
   .wintime{font-size:40px;font-weight:800;text-align:center;color:var(--accent);margin:6px 0;}
   .row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);}
   .row:last-child{border-bottom:none;}
@@ -183,9 +187,11 @@
   <div class="s active" data-n="7" data-i18n="diff_medium">7×7 Medio</div>
   <div class="s" data-n="8" data-i18n="diff_hard">8×8 Difícil</div>
   <div class="s" data-n="9" data-i18n="diff_expert">9×9 Experto</div>
+  <div class="s" data-n="10" data-k="2" data-i18n="diff_nightmare">10×10 · 2★ Pesadilla</div>
 </div>
 
 <div id="boardWrap"><div id="board"></div></div>
+<div class="genov" id="genOv"><div class="spin"></div><div data-i18n="generating">Generando puzzle…</div></div>
 
 <div class="controls" id="controls">
   <button class="btn" id="btnUndo" data-i18n="btn_undo">↶ Deshacer</button>
@@ -275,7 +281,7 @@ Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <
     <div class="row"><span data-i18n="set_autox">Auto-marcar ✕ alrededor</span><div class="switch" id="swAutoX"><div class="k"></div></div></div>
     <div class="row"><span data-i18n="set_conflicts">Resaltar conflictos</span><div class="switch on" id="swConflicts"><div class="k"></div></div></div>
     <div class="row"><span data-i18n="set_colorblind">Modo daltónico</span><div class="switch" id="swColorblind"><div class="k"></div></div></div>
-    <p data-i18n="version" style="margin-top:14px;font-size:12px">Astrella v1.10 · Hecho con ♥ · Sin anuncios · Offline</p>
+    <p data-i18n="version" style="margin-top:14px;font-size:12px">Astrella v1.12 · Hecho con ♥ · Sin anuncios · Offline</p>
   </div>
 </div>
 
@@ -324,8 +330,8 @@ if(!stats.practiceSizesSolved) stats.practiceSizesSolved=[];
 
 // ============ i18n ============
 const T={
- es:{loading:"Cargando…",tab_daily:"★ Diario",tab_practice:"∞ Práctica",diff_easy:"6×6 Fácil",diff_medium:"7×7 Medio",diff_hard:"8×8 Difícil",diff_expert:"9×9 Experto",btn_undo:"↶ Deshacer",btn_clear:"⨉ Limpiar",btn_hint:"💡 Pista 5🪙",btn_new:"↻ Nuevo puzzle",btn_result:"📤 Ver mi resultado",hint_text:"Toca una celda para poner ★. Otra vez para marcar ✕. Otra para borrar.<br>Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <b>no pueden tocarse</b> (ni en diagonal).",win_share:"📤 Compartir resultado",win_close:"Cerrar",come_back:"Vuelve mañana para el próximo Astrella ★",lbl_streak:"Racha 🔥",lbl_played:"Jugados",lbl_best:"Mejor⏱",stats_title:"Estadísticas",lbl_winpct:"% Éxito",lbl_streak2:"Racha",lbl_maxstreak:"Máx racha",h_time:"Tiempo",lbl_bestdaily:"Mejor diario",lbl_avgdaily:"Media diario",h_ach:"Logros",settings_title:"Ajustes",set_theme:"Tema claro",set_sound:"Sonido",set_haptic:"Vibración",set_autox:"Auto-marcar ✕ alrededor",set_conflicts:"Resaltar conflictos",set_colorblind:"Modo daltónico",set_lang:"Idioma / Language",t_shop:"Tienda",shop_title:"Tienda",shop_coins:"Tus monedas",shop_skins:"Estrellas",shop_themes:"Temas de color",equip:"Equipar",equipped:"Equipado",shop_nocoins:"No tienes monedas suficientes 🪙",shop_bought:"¡Comprado! 🎉",sk_classic:"Clásica",sk_neon:"Neón",sk_rosa:"Rosa",sk_esmeralda:"Esmeralda",sk_diamante:"Diamante",sk_arcoiris:"Arcoíris",th_vivos:"Vivos",th_pastel:"Pastel",th_neon:"Neón",th_ocean:"Océano",version:"Astrella v1.10 · Hecho con ♥ · Sin anuncios · Offline",tut_skip:"Saltar",tut_next:"Siguiente",tut_play:"Jugar ★",t_help:"Cómo jugar",t_stats:"Estadísticas",t_settings:"Ajustes",t_coins:"Monedas",daily:"Diario",practice:"Práctica",win_daily_t:"¡Astrella resuelto! ★",win_t:"¡Resuelto! ★",hints_one:"pista",hints_many:"pistas",you_have:"Tienes",no_coins:"Sin monedas 🪙 — gánalas en modo Práctica o vuelve mañana",hint_limit:"Has usado las 3 pistas de este puzzle",fixed_hint:"Pista fija ⭐",copied:"Resultado copiado 📋",shared:"¡Compartido! 📤",copy_prompt:"Copia tu resultado:",daily_bonus:"+5 🪙 ¡Bonus diario!",ach_unlocked:"🏆 Logro:",set_backup:"Copia de tu progreso",btn_export:"📤 Exportar",btn_import:"📥 Importar",export_copied:"Código copiado 📋 — guárdalo a buen recaudo",export_prompt:"Tu código de copia (cópialo y guárdalo en sitio seguro):",import_prompt:"Pega aquí tu código de copia:",import_ok:"¡Progreso restaurado!",import_err:"Código no válido ❌",share_text:"Astrella #{n} ★\n⏱ {t}   🔥 racha {s}\n¿Puedes batirme? #Astrella",tut1_t:"Astrella ★",tut1_p:"Un puzzle de lógica nuevo cada día. Te lo explico en 20 segundos.",tut2_t:"El objetivo",tut2_p:"Coloca <b>1 estrella por fila, 1 por columna y 1 por cada región de color</b>.",tut3_t:"No se tocan",tut3_p:"Dos estrellas <b>nunca pueden tocarse</b>, ni siquiera en diagonal.",tut3_bad:"✗ Se tocan",tut3_ok:"✓ Bien",tut4_t:"Controles",tut4_p:"Toca una casilla: vacío → ★ → ✕ → vacío. Usa <b>✕</b> para descartar. ¿Atascado? Una <b>💡 Pista</b> cuesta monedas 🪙 que ganas al resolver puzzles (y con el bonus diario). Máximo 3 por puzzle.",tut5_t:"¡A jugar! ★",tut5_p:"Resuelve el reto de hoy, mantén tu <b>racha 🔥</b> y comparte tu tiempo con tus amigos.",ach_first:"Primer destello",ach_first_d:"Resuelve tu primer puzzle",ach_nohint:"Mente limpia",ach_nohint_d:"Resuelve el diario sin pistas",ach_speed:"Rayo",ach_speed_d:"Resuelve en menos de 1:00 sin pistas",ach_expert:"Experto",ach_expert_d:"Resuelve un tablero 9×9",ach_streak3:"En racha",ach_streak3_d:"Racha de 3 días",ach_streak7:"Semana estelar",ach_streak7_d:"Racha de 7 días",ach_streak14:"Constelación",ach_streak14_d:"Racha de 14 días",ach_streak30:"Galaxia",ach_streak30_d:"Racha de 30 días",ach_d10:"Habitual",ach_d10_d:"Completa 10 diarios",ach_d50:"Veterano",ach_d50_d:"Completa 50 diarios",ach_rich:"Cazamonedas",ach_rich_d:"Acumula 100 monedas",ach_allsizes:"Todoterreno",ach_allsizes_d:"Resuelve en práctica los 4 tamaños"},
- en:{loading:"Loading…",tab_daily:"★ Daily",tab_practice:"∞ Practice",diff_easy:"6×6 Easy",diff_medium:"7×7 Medium",diff_hard:"8×8 Hard",diff_expert:"9×9 Expert",btn_undo:"↶ Undo",btn_clear:"⨉ Clear",btn_hint:"💡 Hint 5🪙",btn_new:"↻ New puzzle",btn_result:"📤 View my result",hint_text:"Tap a cell for ★. Tap again to mark ✕. Again to clear.<br>Place <b>one star per row, column and colour region</b>. Stars <b>can't touch</b> (not even diagonally).",win_share:"📤 Share result",win_close:"Close",come_back:"Come back tomorrow for the next Astrella ★",lbl_streak:"Streak 🔥",lbl_played:"Played",lbl_best:"Best⏱",stats_title:"Statistics",lbl_winpct:"Win %",lbl_streak2:"Streak",lbl_maxstreak:"Max streak",h_time:"Time",lbl_bestdaily:"Best daily",lbl_avgdaily:"Avg daily",h_ach:"Achievements",settings_title:"Settings",set_theme:"Light theme",set_sound:"Sound",set_haptic:"Vibration",set_autox:"Auto-mark ✕ around",set_conflicts:"Highlight conflicts",set_colorblind:"Colorblind mode",set_lang:"Idioma / Language",t_shop:"Shop",shop_title:"Shop",shop_coins:"Your coins",shop_skins:"Stars",shop_themes:"Colour themes",equip:"Equip",equipped:"Equipped",shop_nocoins:"Not enough coins 🪙",shop_bought:"Purchased! 🎉",sk_classic:"Classic",sk_neon:"Neon",sk_rosa:"Rose",sk_esmeralda:"Emerald",sk_diamante:"Diamond",sk_arcoiris:"Rainbow",th_vivos:"Vivid",th_pastel:"Pastel",th_neon:"Neon",th_ocean:"Ocean",version:"Astrella v1.10 · Made with ♥ · No ads · Offline",tut_skip:"Skip",tut_next:"Next",tut_play:"Play ★",t_help:"How to play",t_stats:"Statistics",t_settings:"Settings",t_coins:"Coins",daily:"Daily",practice:"Practice",win_daily_t:"Astrella solved! ★",win_t:"Solved! ★",hints_one:"hint",hints_many:"hints",you_have:"You have",no_coins:"Out of coins 🪙 — earn them in Practice or come back tomorrow",hint_limit:"You've used all 3 hints for this puzzle",fixed_hint:"Fixed hint ⭐",copied:"Result copied 📋",shared:"Shared! 📤",copy_prompt:"Copy your result:",daily_bonus:"+5 🪙 Daily bonus!",ach_unlocked:"🏆 Achievement:",set_backup:"Your progress backup",btn_export:"📤 Export",btn_import:"📥 Import",export_copied:"Code copied 📋 — keep it safe",export_prompt:"Your backup code (copy and keep it safe):",import_prompt:"Paste your backup code here:",import_ok:"Progress restored!",import_err:"Invalid code ❌",share_text:"Astrella #{n} ★\n⏱ {t}   🔥 streak {s}\nCan you beat me? #Astrella",tut1_t:"Astrella ★",tut1_p:"A new logic puzzle every day. Here's how in 20 seconds.",tut2_t:"The goal",tut2_p:"Place <b>1 star per row, 1 per column and 1 per colour region</b>.",tut3_t:"No touching",tut3_p:"Two stars <b>can never touch</b>, not even diagonally.",tut3_bad:"✗ Touching",tut3_ok:"✓ OK",tut4_t:"Controls",tut4_p:"Tap a cell: empty → ★ → ✕ → empty. Use <b>✕</b> to rule out cells. Stuck? A <b>💡 Hint</b> costs coins 🪙 you earn by solving puzzles (and from the daily bonus). Up to 3 per puzzle.",tut5_t:"Let's play! ★",tut5_p:"Solve today's challenge, keep your <b>streak 🔥</b> and share your time with friends.",ach_first:"First spark",ach_first_d:"Solve your first puzzle",ach_nohint:"Clear mind",ach_nohint_d:"Solve the daily with no hints",ach_speed:"Lightning",ach_speed_d:"Solve in under 1:00 with no hints",ach_expert:"Expert",ach_expert_d:"Solve a 9×9 board",ach_streak3:"On a roll",ach_streak3_d:"3-day streak",ach_streak7:"Stellar week",ach_streak7_d:"7-day streak",ach_streak14:"Constellation",ach_streak14_d:"14-day streak",ach_streak30:"Galaxy",ach_streak30_d:"30-day streak",ach_d10:"Regular",ach_d10_d:"Complete 10 dailies",ach_d50:"Veteran",ach_d50_d:"Complete 50 dailies",ach_rich:"Coin hunter",ach_rich_d:"Save up 100 coins",ach_allsizes:"All-rounder",ach_allsizes_d:"Solve all 4 sizes in practice"}
+ es:{loading:"Cargando…",tab_daily:"★ Diario",tab_practice:"∞ Práctica",diff_easy:"6×6 Fácil",diff_medium:"7×7 Medio",diff_hard:"8×8 Difícil",diff_expert:"9×9 Experto",diff_nightmare:"10×10 · 2★ Pesadilla",generating:"Generando puzzle…",btn_undo:"↶ Deshacer",btn_clear:"⨉ Limpiar",btn_hint:"💡 Pista 5🪙",btn_new:"↻ Nuevo puzzle",btn_result:"📤 Ver mi resultado",hint_text:"Toca una celda para poner ★. Otra vez para marcar ✕. Otra para borrar.<br>Coloca <b>una estrella por fila, columna y región de color</b>. Las estrellas <b>no pueden tocarse</b> (ni en diagonal).",win_share:"📤 Compartir resultado",win_close:"Cerrar",come_back:"Vuelve mañana para el próximo Astrella ★",lbl_streak:"Racha 🔥",lbl_played:"Jugados",lbl_best:"Mejor⏱",stats_title:"Estadísticas",lbl_winpct:"% Éxito",lbl_streak2:"Racha",lbl_maxstreak:"Máx racha",h_time:"Tiempo",lbl_bestdaily:"Mejor diario",lbl_avgdaily:"Media diario",h_ach:"Logros",settings_title:"Ajustes",set_theme:"Tema claro",set_sound:"Sonido",set_haptic:"Vibración",set_autox:"Auto-marcar ✕ alrededor",set_conflicts:"Resaltar conflictos",set_colorblind:"Modo daltónico",set_lang:"Idioma / Language",t_shop:"Tienda",shop_title:"Tienda",shop_coins:"Tus monedas",shop_skins:"Estrellas",shop_themes:"Temas de color",equip:"Equipar",equipped:"Equipado",shop_nocoins:"No tienes monedas suficientes 🪙",shop_bought:"¡Comprado! 🎉",sk_classic:"Clásica",sk_neon:"Neón",sk_rosa:"Rosa",sk_esmeralda:"Esmeralda",sk_diamante:"Diamante",sk_arcoiris:"Arcoíris",th_vivos:"Vivos",th_pastel:"Pastel",th_neon:"Neón",th_ocean:"Océano",version:"Astrella v1.12 · Hecho con ♥ · Sin anuncios · Offline",tut_skip:"Saltar",tut_next:"Siguiente",tut_play:"Jugar ★",t_help:"Cómo jugar",t_stats:"Estadísticas",t_settings:"Ajustes",t_coins:"Monedas",daily:"Diario",practice:"Práctica",win_daily_t:"¡Astrella resuelto! ★",win_t:"¡Resuelto! ★",hints_one:"pista",hints_many:"pistas",you_have:"Tienes",no_coins:"Sin monedas 🪙 — gánalas en modo Práctica o vuelve mañana",hint_limit:"Has usado las 3 pistas de este puzzle",fixed_hint:"Pista fija ⭐",copied:"Resultado copiado 📋",shared:"¡Compartido! 📤",copy_prompt:"Copia tu resultado:",daily_bonus:"+5 🪙 ¡Bonus diario!",ach_unlocked:"🏆 Logro:",set_backup:"Copia de tu progreso",btn_export:"📤 Exportar",btn_import:"📥 Importar",export_copied:"Código copiado 📋 — guárdalo a buen recaudo",export_prompt:"Tu código de copia (cópialo y guárdalo en sitio seguro):",import_prompt:"Pega aquí tu código de copia:",import_ok:"¡Progreso restaurado!",import_err:"Código no válido ❌",share_text:"Astrella #{n} ★\n⏱ {t}   🔥 racha {s}\n¿Puedes batirme? #Astrella",tut1_t:"Astrella ★",tut1_p:"Un puzzle de lógica nuevo cada día. Te lo explico en 20 segundos.",tut2_t:"El objetivo",tut2_p:"Coloca <b>1 estrella por fila, 1 por columna y 1 por cada región de color</b>.",tut3_t:"No se tocan",tut3_p:"Dos estrellas <b>nunca pueden tocarse</b>, ni siquiera en diagonal.",tut3_bad:"✗ Se tocan",tut3_ok:"✓ Bien",tut4_t:"Controles",tut4_p:"Toca una casilla: vacío → ★ → ✕ → vacío. Usa <b>✕</b> para descartar. ¿Atascado? Una <b>💡 Pista</b> cuesta monedas 🪙 que ganas al resolver puzzles (y con el bonus diario). Máximo 3 por puzzle.",tut5_t:"¡A jugar! ★",tut5_p:"Resuelve el reto de hoy, mantén tu <b>racha 🔥</b> y comparte tu tiempo con tus amigos.",ach_first:"Primer destello",ach_first_d:"Resuelve tu primer puzzle",ach_nohint:"Mente limpia",ach_nohint_d:"Resuelve el diario sin pistas",ach_speed:"Rayo",ach_speed_d:"Resuelve en menos de 1:00 sin pistas",ach_expert:"Experto",ach_expert_d:"Resuelve un tablero 9×9",ach_streak3:"En racha",ach_streak3_d:"Racha de 3 días",ach_streak7:"Semana estelar",ach_streak7_d:"Racha de 7 días",ach_streak14:"Constelación",ach_streak14_d:"Racha de 14 días",ach_streak30:"Galaxia",ach_streak30_d:"Racha de 30 días",ach_d10:"Habitual",ach_d10_d:"Completa 10 diarios",ach_d50:"Veterano",ach_d50_d:"Completa 50 diarios",ach_rich:"Cazamonedas",ach_rich_d:"Acumula 100 monedas",ach_allsizes:"Todoterreno",ach_allsizes_d:"Resuelve en práctica los 4 tamaños"},
+ en:{loading:"Loading…",tab_daily:"★ Daily",tab_practice:"∞ Practice",diff_easy:"6×6 Easy",diff_medium:"7×7 Medium",diff_hard:"8×8 Hard",diff_expert:"9×9 Expert",diff_nightmare:"10×10 · 2★ Nightmare",generating:"Generating puzzle…",btn_undo:"↶ Undo",btn_clear:"⨉ Clear",btn_hint:"💡 Hint 5🪙",btn_new:"↻ New puzzle",btn_result:"📤 View my result",hint_text:"Tap a cell for ★. Tap again to mark ✕. Again to clear.<br>Place <b>one star per row, column and colour region</b>. Stars <b>can't touch</b> (not even diagonally).",win_share:"📤 Share result",win_close:"Close",come_back:"Come back tomorrow for the next Astrella ★",lbl_streak:"Streak 🔥",lbl_played:"Played",lbl_best:"Best⏱",stats_title:"Statistics",lbl_winpct:"Win %",lbl_streak2:"Streak",lbl_maxstreak:"Max streak",h_time:"Time",lbl_bestdaily:"Best daily",lbl_avgdaily:"Avg daily",h_ach:"Achievements",settings_title:"Settings",set_theme:"Light theme",set_sound:"Sound",set_haptic:"Vibration",set_autox:"Auto-mark ✕ around",set_conflicts:"Highlight conflicts",set_colorblind:"Colorblind mode",set_lang:"Idioma / Language",t_shop:"Shop",shop_title:"Shop",shop_coins:"Your coins",shop_skins:"Stars",shop_themes:"Colour themes",equip:"Equip",equipped:"Equipped",shop_nocoins:"Not enough coins 🪙",shop_bought:"Purchased! 🎉",sk_classic:"Classic",sk_neon:"Neon",sk_rosa:"Rose",sk_esmeralda:"Emerald",sk_diamante:"Diamond",sk_arcoiris:"Rainbow",th_vivos:"Vivid",th_pastel:"Pastel",th_neon:"Neon",th_ocean:"Ocean",version:"Astrella v1.12 · Made with ♥ · No ads · Offline",tut_skip:"Skip",tut_next:"Next",tut_play:"Play ★",t_help:"How to play",t_stats:"Statistics",t_settings:"Settings",t_coins:"Coins",daily:"Daily",practice:"Practice",win_daily_t:"Astrella solved! ★",win_t:"Solved! ★",hints_one:"hint",hints_many:"hints",you_have:"You have",no_coins:"Out of coins 🪙 — earn them in Practice or come back tomorrow",hint_limit:"You've used all 3 hints for this puzzle",fixed_hint:"Fixed hint ⭐",copied:"Result copied 📋",shared:"Shared! 📤",copy_prompt:"Copy your result:",daily_bonus:"+5 🪙 Daily bonus!",ach_unlocked:"🏆 Achievement:",set_backup:"Your progress backup",btn_export:"📤 Export",btn_import:"📥 Import",export_copied:"Code copied 📋 — keep it safe",export_prompt:"Your backup code (copy and keep it safe):",import_prompt:"Paste your backup code here:",import_ok:"Progress restored!",import_err:"Invalid code ❌",share_text:"Astrella #{n} ★\n⏱ {t}   🔥 streak {s}\nCan you beat me? #Astrella",tut1_t:"Astrella ★",tut1_p:"A new logic puzzle every day. Here's how in 20 seconds.",tut2_t:"The goal",tut2_p:"Place <b>1 star per row, 1 per column and 1 per colour region</b>.",tut3_t:"No touching",tut3_p:"Two stars <b>can never touch</b>, not even diagonally.",tut3_bad:"✗ Touching",tut3_ok:"✓ OK",tut4_t:"Controls",tut4_p:"Tap a cell: empty → ★ → ✕ → empty. Use <b>✕</b> to rule out cells. Stuck? A <b>💡 Hint</b> costs coins 🪙 you earn by solving puzzles (and from the daily bonus). Up to 3 per puzzle.",tut5_t:"Let's play! ★",tut5_p:"Solve today's challenge, keep your <b>streak 🔥</b> and share your time with friends.",ach_first:"First spark",ach_first_d:"Solve your first puzzle",ach_nohint:"Clear mind",ach_nohint_d:"Solve the daily with no hints",ach_speed:"Lightning",ach_speed_d:"Solve in under 1:00 with no hints",ach_expert:"Expert",ach_expert_d:"Solve a 9×9 board",ach_streak3:"On a roll",ach_streak3_d:"3-day streak",ach_streak7:"Stellar week",ach_streak7_d:"7-day streak",ach_streak14:"Constellation",ach_streak14_d:"14-day streak",ach_streak30:"Galaxy",ach_streak30_d:"30-day streak",ach_d10:"Regular",ach_d10_d:"Complete 10 dailies",ach_d50:"Veteran",ach_d50_d:"Complete 50 dailies",ach_rich:"Coin hunter",ach_rich_d:"Save up 100 coins",ach_allsizes:"All-rounder",ach_allsizes_d:"Solve all 4 sizes in practice"}
 };
 let lang = LS.get('lang',null) || ((navigator.language||'en').toLowerCase().indexOf('es')===0?'es':'en');
 function t(k){ const d=T[lang]||T.en; return (d[k]!==undefined)?d[k]:(T.en[k]!==undefined?T.en[k]:k); }
@@ -502,6 +508,17 @@ function generatePuzzle(seed,n){
   return {n,reg,sol:cols.map((c,r)=>[r,c]),cols};
 }
 
+// ===== 2-star engine (Pesadilla) =====
+function genSolutionK(n,k,rng){const colCount=new Array(n).fill(0);const rowsSel=new Array(n);const combos=[];{const cur=[];(function rec(start){if(cur.length===k){combos.push(cur.slice());return;}for(let c=start;c<n;c++){if(cur.length&&c-cur[cur.length-1]<2)continue;cur.push(c);rec(c+1);cur.pop();}})(0);}
+  function rec(r){if(r===n){for(let c=0;c<n;c++)if(colCount[c]!==k)return false;return true;}for(let c=0;c<n;c++)if(colCount[c]+(n-r)<k)return false;const order=shuffle(combos.slice(),rng);const prev=r>0?rowsSel[r-1]:null;for(const combo of order){let okk=true;for(const c of combo){if(colCount[c]>=k){okk=false;break;}if(prev){for(const pc of prev)if(Math.abs(c-pc)<2){okk=false;break;}}if(!okk)break;}if(!okk)continue;for(const c of combo)colCount[c]++;rowsSel[r]=combo;if(rec(r+1))return true;for(const c of combo)colCount[c]--;}return false;}
+  return rec(0)?rowsSel:null;}
+function regionsValidK(n,reg,starSet,k){for(let g=0;g<n;g++){const cells=[];let sc=0;for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(reg[r][c]===g){cells.push([r,c]);if(starSet.has(r+','+c))sc++;}if(!cells.length||sc!==k)return false;const seen=new Set([cells[0][0]+','+cells[0][1]]);const st=[cells[0]];while(st.length){const[r,c]=st.pop();for(const[dr,dc]of N4){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&reg[nr][nc]===g){const kk=nr+','+nc;if(!seen.has(kk)){seen.add(kk);st.push([nr,nc]);}}}}if(seen.size!==cells.length)return false;}return true;}
+function buildRegionsK(n,rowsSel,k,rng){const stars=[];for(let r=0;r<n;r++)for(const c of rowsSel[r])stars.push([r,c]);const starSet=new Set(stars.map(s=>s[0]+','+s[1]));for(let att=0;att<40;att++){const pool=shuffle(stars.slice(),rng);const used=new Array(pool.length).fill(false);const groups=[];for(let i=0;i<pool.length;i++){if(used[i])continue;const grp=[i];used[i]=true;while(grp.length<k){let best=-1,bd=1e9;for(let j=0;j<pool.length;j++){if(used[j])continue;let d=1e9;for(const gi of grp)d=Math.min(d,Math.abs(pool[gi][0]-pool[j][0])+Math.abs(pool[gi][1]-pool[j][1]));if(d<bd){bd=d;best=j;}}if(best<0)break;used[best]=true;grp.push(best);}groups.push(grp);}if(groups.length!==n)continue;const reg=Array.from({length:n},()=>new Array(n).fill(-1));let remaining=n*n;const front=[];function add(r,c,id){for(const[dr,dc]of N4){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&reg[nr][nc]===-1)front.push([nr,nc,id]);}}groups.forEach((grp,id)=>{for(const gi of grp){const[r,c]=pool[gi];if(reg[r][c]===-1){reg[r][c]=id;remaining--;add(r,c,id);}}});let guard=n*n*60;while(remaining>0&&front.length&&guard-->0){const idx=Math.floor(rng()*front.length);const[r,c,id]=front.splice(idx,1)[0];if(reg[r][c]===-1){reg[r][c]=id;remaining--;add(r,c,id);}}if(remaining>0){let ch=true;while(remaining>0&&ch){ch=false;for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(reg[r][c]===-1){for(const[dr,dc]of N4){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&reg[nr][nc]!==-1){reg[r][c]=reg[nr][nc];remaining--;ch=true;break;}}}}}if(regionsValidK(n,reg,starSet,k))return {reg,starSet};}return null;}
+function solveAllK(n,reg,k,limit){const colCount=new Array(n).fill(0),regCount=new Array(n).fill(0);const sols=[];const chosen=[];let steps=0;const CAP=120000;const combos=[];{const cur=[];(function rec(start){if(cur.length===k){combos.push(cur.slice());return;}for(let c=start;c<n;c++){if(cur.length&&c-cur[cur.length-1]<2)continue;cur.push(c);rec(c+1);cur.pop();}})(0);}let prev=null;function rec(r){if(sols.length>=limit)return;if(++steps>CAP)throw {cap:true};if(r===n){sols.push(chosen.map(x=>x.slice()));return;}for(let c=0;c<n;c++)if(colCount[c]+(n-r)<k)return;for(const combo of combos){let okk=true;for(const c of combo){if(colCount[c]>=k||regCount[reg[r][c]]>=k){okk=false;break;}if(prev){for(const pc of prev)if(Math.abs(c-pc)<2){okk=false;break;}}if(!okk)break;}if(!okk)continue;for(const c of combo){colCount[c]++;regCount[reg[r][c]]++;}chosen.push(combo);const sp=prev;prev=combo;rec(r+1);prev=sp;chosen.pop();for(const c of combo){colCount[c]--;regCount[reg[r][c]]--;}if(sols.length>=limit)return;}}rec(0);return sols;}
+function regionOkAfterMove(n,reg,g,ar,ac,starSet,k){const cells=[];let sc=0;for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(reg[r][c]===g&&!(r===ar&&c===ac)){cells.push([r,c]);if(starSet.has(r+','+c))sc++;}if(!cells.length||sc<k)return false;const seen=new Set([cells[0][0]+','+cells[0][1]]);const st=[cells[0]];while(st.length){const[r,c]=st.pop();for(const[dr,dc]of N4){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&reg[nr][nc]===g&&!(nr===ar&&nc===ac)){const kk=nr+','+nc;if(!seen.has(kk)){seen.add(kk);st.push([nr,nc]);}}}}return seen.size===cells.length;}
+function refineK(n,reg,starSet,k,rng,maxIter){for(let it=0;it<maxIter;it++){const sols=solveAllK(n,reg,k,2);if(sols.length===1)return reg;if(sols.length===0)return null;let A=null;for(const s of sols){const set=new Set();for(let r=0;r<n;r++)for(const c of s[r])set.add(r+','+c);let diff=false;for(const x of set)if(!starSet.has(x)){diff=true;break;}if(diff){A=set;break;}}if(!A)return reg;const cands=shuffle([...A].filter(x=>!starSet.has(x)),rng);let moved=false;for(const cell of cands){const[r,c]=cell.split(',').map(Number);const g=reg[r][c];const dirs=shuffle(N4.slice(),rng);for(const[dr,dc]of dirs){const nr=r+dr,nc=c+dc;if(nr<0||nr>=n||nc<0||nc>=n)continue;const h=reg[nr][nc];if(h===g)continue;if(regionOkAfterMove(n,reg,g,r,c,starSet,k)){reg[r][c]=h;moved=true;break;}}if(moved)break;}if(!moved)return null;}return solveAllK(n,reg,k,2).length===1?reg:null;}
+function genPuzzle2(seed){const n=10,k=2;for(let a=0;a<500;a++){const rng=mulberry32((seed*7919+a*104729)>>>0);const rs=genSolutionK(n,k,rng);if(!rs)continue;const br=buildRegionsK(n,rs,k,rng);if(!br)continue;let out=null;try{out=refineK(n,br.reg,br.starSet,k,rng,40);}catch(e){if(e&&e.cap)continue;throw e;}if(out){const sol=[...br.starSet].map(s=>s.split(',').map(Number));return {n,reg:out,sol,k};}}return null;}
+
 // ============ Colors ============
 const THEMES={
   vivos:['#ff5a5a','#ff9f33','#cddc39','#5fd35f','#2ec9a0','#28d2d2','#3aa0ff','#7c6cff','#c44dff','#ff5db1'],
@@ -525,6 +542,7 @@ function starInner(){ const s=SKINS[curSkin()]; return '<span class="star '+s.cl
 
 // ============ Game state ============
 let mode='daily', N=8, puzzle=null, cellState=[], history=[], timer=0, timerInt=null, running=false, solved=false, practiceN=7;
+let STARS=1, practiceK=1;
 let coins=LS.get('coins',15), hintsUsed=0, lastEarned=0; const HINT_COST=5, HINT_MAX=3;
 let hintCells=new Set();
 const board=document.getElementById('board');
@@ -536,26 +554,7 @@ function startTimer(){ if(running||solved)return; running=true; timerInt=setInte
 function stopTimer(){ running=false; clearInterval(timerInt); }
 function fmt(s){ const m=Math.floor(s/60); return m+':'+String(s%60).padStart(2,'0'); }
 
-function newGame(){
-  solved=false; stopTimer(); timer=0; history=[]; hintsUsed=0; hintCells=new Set();
-  if(mode==='daily'){
-    N=8;
-    const dn=dayNumber();
-    puzzle=generatePuzzle(1000+dn,N);
-    const done=stats.lastDaily===puzzleNo();
-    document.getElementById('btnNew').style.display='none';
-    document.getElementById('diffSeg').style.display='none';
-    // restore saved progress for today
-    const sp=LS.get('dailyProgress',null);
-    if(sp&&sp.no===puzzleNo()&&sp.n===N){ cellState=sp.state; timer=sp.timer||0; hintsUsed=sp.hintsUsed||0; hintCells=new Set(sp.hints||[]); }
-    else cellState=Array.from({length:N},()=>new Array(N).fill(0));
-  }else{
-    N=practiceN;
-    puzzle=generatePuzzle((Math.random()*1e9)|0, N);
-    cellState=Array.from({length:N},()=>new Array(N).fill(0));
-    document.getElementById('btnNew').style.display='block';
-    document.getElementById('diffSeg').style.display='flex';
-  }
+function finishNewGame(){
   buildBoard();
   renderMeta();
   // if daily already done, show solution + completed state
@@ -563,6 +562,41 @@ function newGame(){
   if(dailyDone){ showSolution(); solved=true; renderAll(); }
   applyDailyDoneUI(dailyDone);
   updateHintBtn();
+}
+function newGame(){
+  solved=false; stopTimer(); timer=0; history=[]; hintsUsed=0; hintCells=new Set();
+  if(mode==='daily'){
+    STARS=1; N=8;
+    const dn=dayNumber();
+    puzzle=generatePuzzle(1000+dn,N);
+    document.getElementById('btnNew').style.display='none';
+    document.getElementById('diffSeg').style.display='none';
+    // restore saved progress for today
+    const sp=LS.get('dailyProgress',null);
+    if(sp&&sp.no===puzzleNo()&&sp.n===N){ cellState=sp.state; timer=sp.timer||0; hintsUsed=sp.hintsUsed||0; hintCells=new Set(sp.hints||[]); }
+    else cellState=Array.from({length:N},()=>new Array(N).fill(0));
+    finishNewGame();
+  }else{
+    document.getElementById('btnNew').style.display='block';
+    document.getElementById('diffSeg').style.display='flex';
+    if((practiceK||1)===2){
+      STARS=2; N=10;
+      document.getElementById('genOv').classList.add('show');
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        let p=null; try{ p=genPuzzle2((Math.random()*1e9)|0); }catch(e){ p=null; }
+        if(!p){ try{ p=genPuzzle2((Math.random()*1e9)|0); }catch(e){} }
+        puzzle=p||{n:10,reg:Array.from({length:10},()=>new Array(10).fill(0)),sol:[],k:2};
+        cellState=Array.from({length:10},()=>new Array(10).fill(0));
+        document.getElementById('genOv').classList.remove('show');
+        finishNewGame();
+      }));
+      return;
+    }
+    STARS=1; N=practiceN;
+    puzzle=generatePuzzle((Math.random()*1e9)|0, N);
+    cellState=Array.from({length:N},()=>new Array(N).fill(0));
+    finishNewGame();
+  }
 }
 
 function buildBoard(){
@@ -628,7 +662,7 @@ function conflicts(){
     (starsByCol[c]=starsByCol[c]||[]).push([r,c]);
     const id=puzzle.reg[r][c]; (starsByReg[id]=starsByReg[id]||[]).push([r,c]);
   }
-  function flag(group){for(const k in group)if(group[k].length>1)group[k].forEach(([r,c])=>bad.add(r+','+c));}
+  function flag(group){for(const k in group)if(group[k].length>STARS)group[k].forEach(([r,c])=>bad.add(r+','+c));}
   flag(starsByRow);flag(starsByCol);flag(starsByReg);
   for(const[r,c]of list)for(const[r2,c2]of list){
     if((r!==r2||c!==c2)&&Math.abs(r-r2)<=1&&Math.abs(c-c2)<=1){bad.add(r+','+c);bad.add(r2+','+c2);}
@@ -652,20 +686,19 @@ function renderAll(){
 function renderMeta(){
   const ml=document.getElementById('metaLeft'), mr=document.getElementById('metaRight');
   if(mode==='daily'){ ml.textContent='Astrella #'+puzzleNo()+' · '+N+'×'+N; }
-  else { ml.textContent=t('practice')+' · '+N+'×'+N; }
+  else { ml.textContent=t('practice')+' · '+N+'×'+N+(STARS===2?' · 2★':''); }
   mr.textContent='⏱ '+fmt(timer);
 }
 
 function checkWin(){
   let count=0;
   for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(cellState[r][c]===1) count++;
-  if(count!==N) return;
+  if(count!==STARS*N) return;
   if(conflicts().size>0) return;
-  // valid: one per row/col/region (counts==N, no conflicts guarantees)
-  // verify one per row & col & region
-  const rows=new Set(),cols=new Set(),regs=new Set();
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(cellState[r][c]===1){rows.add(r);cols.add(c);regs.add(puzzle.reg[r][c]);}
-  if(rows.size!==N||cols.size!==N||regs.size!==N) return;
+  // verify exactly STARS per row, column and region
+  const rows=new Array(N).fill(0),cols=new Array(N).fill(0),regs=new Array(N).fill(0);
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(cellState[r][c]===1){rows[r]++;cols[c]++;regs[puzzle.reg[r][c]]++;}
+  for(let i=0;i<N;i++) if(rows[i]!==STARS||cols[i]!==STARS||regs[i]!==STARS) return;
   win();
 }
 
@@ -935,7 +968,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
 }));
 document.querySelectorAll('#diffSeg .s').forEach(s=>s.addEventListener('click',()=>{
   document.querySelectorAll('#diffSeg .s').forEach(x=>x.classList.remove('active'));
-  s.classList.add('active'); practiceN=+s.dataset.n; newGame();
+  s.classList.add('active'); practiceN=+s.dataset.n; practiceK=+(s.dataset.k||1); newGame();
 }));
 
 // ============ Language ============
