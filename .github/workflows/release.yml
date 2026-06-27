@@ -73,15 +73,15 @@ jobs:
 
           cat > app/build.gradle <<'EOF'
           plugins {
-              id 'com.android.application' version '8.5.2'
+              id 'com.android.application' version '8.6.1'
           }
           android {
               namespace 'com.launion.astrella'
-              compileSdk 34
+              compileSdk 35
               defaultConfig {
                   applicationId 'com.launion.astrella'
                   minSdk 21
-                  targetSdk 34
+                  targetSdk 35
                   versionCode VERSION_CODE_PLACEHOLDER
                   versionName "1.3.VERSION_CODE_PLACEHOLDER"
               }
